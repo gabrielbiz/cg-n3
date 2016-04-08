@@ -14,6 +14,7 @@ public class Camera {
 		axisSizes[1] = maxX;
 		axisSizes[2] = minY;
 		axisSizes[3] = maxY;
+		glu = new GLU();
 	}
 	
 	/**
