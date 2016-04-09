@@ -13,9 +13,11 @@ import main.controller.Controller;
 public class MainWindow extends JFrame {
 
 	private static final long serialVersionUID = 1L;
+	public static final MainWindow mainWindow = new MainWindow();
 	private World world = new World();
 	private Renderer renderer = new Renderer(world);
 	private Controller controller = new Controller(world);
+	public static GLCanvas canvas;
 	
 	public MainWindow() {		
 		super("CG-N3");   
@@ -35,7 +37,7 @@ public class MainWindow extends JFrame {
 		/* Cria um canvas, adiciona ao frame e objeto "ouvinte" 
 		 * para os eventos Gl, de mouse e teclado
 		 */
-		GLCanvas canvas = new GLCanvas(glCaps);
+		canvas = new GLCanvas(glCaps);
 		add(canvas,BorderLayout.CENTER);
 		canvas.addGLEventListener(renderer);        
 		canvas.addKeyListener(controller);
@@ -45,7 +47,7 @@ public class MainWindow extends JFrame {
 	}		
 	
 	public static void main(String[] args) {
-		new MainWindow().setVisible(true);
+		mainWindow.setVisible(true);
 	}
 	
 }

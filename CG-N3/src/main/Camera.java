@@ -5,7 +5,7 @@ import javax.media.opengl.glu.GLU;
 public class Camera {
 
 	private GLU glu;
-	private float[] axisSizes = {-400.0f, 400.0f, -400.0f, 400.0f};
+	public float[] axisSizes = {-400.0f, 400.0f, -400.0f, 400.0f};
 	private float[] axisMaxSizes = {-5000.0f, 5000.0f, -5000.0f, 5000.0f};
 	private float[] axisMinSizes = {-100.0f, 100.0f, -100.0f, 100.0f};
 
@@ -46,6 +46,22 @@ public class Camera {
 			axisSizes[2] += zoom;
 			axisSizes[3] += -zoom;
 		}
+	}
+	
+	public float getCameraHalfHeight() {
+		return getCameraHeight() / 2;
+	}
+
+	public float getCameraHalfWidth() {
+		return getCameraWidth() / 2;
+	}
+
+	public float getCameraWidth() {
+		return Math.abs(axisSizes[0] - axisSizes[1]);
+	}
+	
+	public float getCameraHeight() {
+		return Math.abs(axisSizes[2] - axisSizes[3]);
 	}
 	
 	/**

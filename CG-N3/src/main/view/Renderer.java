@@ -15,8 +15,8 @@ import main.World;
 
 public class Renderer implements GLEventListener, KeyListener, MouseListener, MouseMotionListener {
 	
-	private GL gl;
-	private GLAutoDrawable glDrawable;
+	public static GL gl;
+	public static GLAutoDrawable glDrawable;
 	private final World world;
 	
 	public Renderer(World world) {
