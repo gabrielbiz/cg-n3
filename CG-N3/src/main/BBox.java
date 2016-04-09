@@ -2,16 +2,16 @@ package main;
 
 import javax.media.opengl.GL;
 
-public class BBox {
+public class BBox implements Drawable {
 
-	public int minX;
-	public int minY;
-	public int minZ;
-	public int maxX;
-	public int maxY;
-	public int maxZ;
+	private final int minX;
+	private final int minY;
+	private final int minZ;
+	private final int maxX;
+	private final int maxY;
+	private final int maxZ;
 
-	public BBox(int minX, int minY, int minZ, int maxX, int maxY, int maxZ) {
+	private BBox(int minX, int minY, int minZ, int maxX, int maxY, int maxZ) {
 		this.minX = minX;
 		this.minY = minY;
 		this.minZ = minZ;
@@ -24,6 +24,7 @@ public class BBox {
 		this(minX, minY, 0, maxX, maxY, 0);
 	}
 
+	@Override
 	public void draw(final GL gl) {
 		gl.glLineWidth(2f);
 		gl.glPointSize(2f);
@@ -46,5 +47,10 @@ public class BBox {
 			return false;
 		}
 		return true;
+	}
+
+	@Override
+	public String toString() {
+		return String.format("BBox minX: %s, maxX: %s, minY: %s, maxY: %s, minZ: %s, maxZ %s", minX, maxX, minY, maxY,	minZ, maxZ);
 	}
 }

@@ -5,54 +5,82 @@ import java.util.List;
 
 import javax.media.opengl.GL;
 
-public class GraphicObject {
+public class GraphicObject implements Drawable {
 
-	public BBox bbox;
-	public LinkedList<Point4D> points;
+	private final LinkedList<Point4D> points = new LinkedList<>();
 	public int primitive = GL.GL_LINE_STRIP;
 	public Transformation transformation;
-	public float[] color = { 1.0f, 0.0f, 1.0f };
+	public float[] color = { 0f, 0f, 0f };
 	public List<GraphicObject> objects;
+	private BBox bbox;
 
-	public GraphicObject(LinkedList<Point4D> points) {
-		this.points = points;
-		calculateBBox();
+	public void incRed() {
+		incColorAt(0);
 	}
 
-	public GraphicObject() {
-		this(new LinkedList<Point4D>());
+	public void incGreen() {
+		incColorAt(1);
 	}
 
-	public void removeLastPoint() {
-		if (points.isEmpty()) {
+	public void incBlue() {
+		incColorAt(2);
+	}
+
+	/**
+	 * Incrementa +1 para a cor selecionada.
+	 * 
+	 * @param index
+	 *            Indice da cor, vermelho = 0, verde = 1, azul = 2.
+	 */
+	private void incColorAt(final int index) {
+		float v = color[index];
+		v++;
+		color[index] = v > 255 ? 0 : v;
+	}
+
+	public BBox getBBox() {
+		return bbox;
+	}
+
+	public boolean hasBBox() {
+		return bbox != null;
+	}
+
+	public void removePointAt(final int index) {
+		if (isInvalidPointIndex(index)) {
 			return;
 		}
-		points.removeLast();
+		points.remove(index);
+		adjustBBox();
 	}
 
-	public void updateLastPoint(Point4D point) {
-		if (points.isEmpty()) {
+	private boolean isInvalidPointIndex(final int index) {
+		return index < 0 || points.isEmpty();
+	}
+
+	public void alterPointAt(final int index, final Point4D point) {
+		if (isInvalidPointIndex(index) || point == null) {
 			return;
 		}
-		points.removeLast();
-		points.add(point);
+		points.set(index, point);
+		adjustBBox();
 	}
 
-	public void addPoint(final int x, final int y) {
-		final Point4D point = new Point4D(x, y);
-		addPoint(point);
+	public int getLastPointIndex() {
+		return points.size() - 1;
 	}
 
 	public void addPoint(final Point4D point) {
 		points.add(point);
-		// calculateBBox();
+		adjustBBox();
 	}
 
 	public Point4D lastPoint() {
 		return points.getLast();
 	}
 
-	public void draw(GL gl) {
+	@Override
+	public void draw(final GL gl) {
 		gl.glLineWidth(3f);
 		gl.glPointSize(3f);
 		gl.glBegin(primitive);
@@ -64,7 +92,7 @@ public class GraphicObject {
 	}
 
 	/**
-	 * Verifica se um ponto está contido dentro deste objeto gráfico
+	 * Verifica se um ponto está contido dentro deste objeto gráfico.
 	 * 
 	 * @param point
 	 *            ponto
@@ -72,10 +100,13 @@ public class GraphicObject {
 	 *         <code>false</code> de outra maneira.
 	 */
 	public boolean contains(final Point4D point) {
+		if (bbox == null) {
+			return false;
+		}
 		return bbox.contains(point);
 	}
 
-	public void calculateBBox() {
+	private void adjustBBox() {
 		if (points.isEmpty()) {
 			return;
 		}

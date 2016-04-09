@@ -14,6 +14,10 @@ public class World {
 	private GraphicObject currentObject;
 	private Camera camera;
 
+	public GraphicObject findObjectAt(final Point4D point) {
+		return objects.stream().filter(o -> o.contains(point)).findFirst().orElse(null);
+	}
+
 	/**
 	 * Altera o objeto selecionado no mundo.
 	 * 
@@ -71,6 +75,13 @@ public class World {
 	 */
 	public void render(GL gl) {
 		objects.forEach(go -> go.draw(gl));
+		if (hasCurrentObject()) {
+			final GraphicObject current = getCurrentObject();
+			if (current.hasBBox()) {
+				final BBox bbox = current.getBBox();
+				bbox.draw(gl);
+			}
+		}
 	}
 
 	/**

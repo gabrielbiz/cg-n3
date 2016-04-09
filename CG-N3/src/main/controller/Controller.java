@@ -17,6 +17,7 @@ import main.view.Render;
 public class Controller implements KeyListener, MouseListener, MouseMotionListener {
 
 	private final World world;
+	private int mousePointIndex;
 
 	public Controller(World world) {
 		this.world = world;
@@ -24,18 +25,146 @@ public class Controller implements KeyListener, MouseListener, MouseMotionListen
 
 	@Override
 	public void mouseDragged(MouseEvent e) {
-		// TODO Auto-generated method stub
-
 	}
 
 	@Override
 	public void mouseMoved(MouseEvent e) {
-		if (world.hasCurrentObject()) {
+		if (world.hasCurrentObject() && mousePointIndex >= 0) {
 			final GraphicObject graphicObject = world.getCurrentObject();
-			final Point4D current = worldPoint(e);
-			graphicObject.updateLastPoint(current);
+			final Point4D newPoint = worldPoint(e);
+			graphicObject.alterPointAt(mousePointIndex, newPoint);
+			Render.glDrawable.display();
+		}
+	}
+
+	@Override
+	public void mouseClicked(MouseEvent e) {
+		System.out.println("F");
+		mousePointIndex = -1;
+		final Point4D current = worldPoint(e);
+		GraphicObject object = world.findObjectAt(current);
+
+		if (object != null) {
+			world.setCurrentObject(object);
+		} else {
+			world.removeCurrentObject();
+		}
+
+		if (e.isControlDown()) {
+			if (object == null) {
+				object = new GraphicObject();
+				object.addPoint(current.clone());
+				world.add(object);
+				world.setCurrentObject(object);
+			}
+			object.addPoint(current);
+			Render.glDrawable.display();
+			mousePointIndex = object.getLastPointIndex();
 		}
 		Render.glDrawable.display();
+	}
+
+	@Override
+	public void mousePressed(MouseEvent e) {
+	}
+
+	@Override
+	public void mouseReleased(MouseEvent e) {
+	}
+
+	@Override
+	public void mouseEntered(MouseEvent e) {
+	}
+
+	@Override
+	public void mouseExited(MouseEvent e) {
+	}
+
+	@Override
+	public void keyTyped(KeyEvent e) {
+	}
+
+	@Override
+	public void keyPressed(KeyEvent e) {
+		alterCurrentObject(e);
+		updateCamera(e);
+		updateCurrentObjectColor(e);
+	}
+
+	@Override
+	public void keyReleased(final KeyEvent e) {
+		final int keyCode = e.getKeyCode();
+		/*
+		 * Remove o ponto do mouse do objeto atual, caso ele exista.
+		 */
+		if (KeyEvent.VK_CONTROL == keyCode) {
+			final GraphicObject currentObject = world.getCurrentObject();
+			if (currentObject != null) {
+				currentObject.removePointAt(mousePointIndex);
+				mousePointIndex = -1;
+				Render.glDrawable.display();
+			}
+		}
+	}
+
+	/**
+	 * Altera o objeto atual, caso ele exista.
+	 * 
+	 * @param e
+	 *            Evento do mouse.
+	 */
+	private void alterCurrentObject(final KeyEvent e) {
+		final int keyCode = e.getKeyCode();
+		if (!world.hasCurrentObject() || KeyEvent.VK_CONTROL != keyCode) {
+			return;
+		}
+
+		/*
+		 * Caso o ponto do mouse já exista apenas retorna.
+		 */
+		if (mousePointIndex >= 0) {
+			return;
+		}
+
+		/*
+		 * Adiciona um ponto qualquer ao objeto atual, esse ponto é vai ser o
+		 * ponto do mouse.
+		 */
+		final GraphicObject currentObject = world.getCurrentObject();
+		final Point4D mousePoint = new Point4D(0, 0);
+		currentObject.addPoint(mousePoint);
+		mousePointIndex = currentObject.getLastPointIndex();
+	}
+
+	/**
+	 * Altera a cor do objeto atual.
+	 * <p>
+	 * Função das teclas:
+	 * <ul>
+	 * <li>Tecla 1 soma +1 na cor Vermelha;</li>
+	 * <li>Tecla 2 soma +1 na cor Verde;</li>
+	 * <li>Tecla 3 soma +1 na cor Azul.</li>
+	 * </ul>
+	 * 
+	 * @param e
+	 *            Evento do mouse.
+	 */
+	private void updateCurrentObjectColor(final KeyEvent e) {
+		if (!world.hasCurrentObject()) {
+			return;
+		}
+		GraphicObject current = world.getCurrentObject();
+		switch (e.getKeyCode()) {
+		case KeyEvent.VK_1:
+			current.incRed();
+			break;
+		case KeyEvent.VK_2:
+			current.incGreen();
+			break;
+		case KeyEvent.VK_3:
+			current.incBlue();
+			break;
+		}
 	}
 
 	/**
@@ -86,71 +215,6 @@ public class Controller implements KeyListener, MouseListener, MouseMotionListen
 	 */
 	private Point4D worldPoint(final MouseEvent e) {
 		return framePosToWorldPos(e.getX(), e.getY());
-	}
-
-	@Override
-	public void mouseClicked(MouseEvent e) {
-		/*
-		 * Se o Ctrl estiver pressionado significa que deve ser criado um novo
-		 * polígono.
-		 */
-		if (e.isControlDown()) {
-			final Point4D current = worldPoint(e);
-			GraphicObject graphicObject = world.getCurrentObject();
-			if (graphicObject == null) {
-				System.out.println("Criado novo polígono");
-				graphicObject = new GraphicObject();
-				world.add(graphicObject);
-				world.setCurrentObject(graphicObject);
-				/*
-				 * Quando cria um objeto adiciona um ponto, pois o último ponto
-				 * do objeto é próximo ponto na visão do usuário.
-				 */
-				graphicObject.addPoint(current.clone());
-			}
-			graphicObject.addPoint(current);
-		}
-	}
-
-	@Override
-	public void mousePressed(MouseEvent e) {
-	}
-
-	@Override
-	public void mouseReleased(MouseEvent e) {
-	}
-
-	@Override
-	public void mouseEntered(MouseEvent e) {
-	}
-
-	@Override
-	public void mouseExited(MouseEvent e) {
-	}
-
-	@Override
-	public void keyTyped(KeyEvent e) {
-	}
-
-	@Override
-	public void keyPressed(KeyEvent e) {
-		updateCamera(e);
-	}
-
-	@Override
-	public void keyReleased(KeyEvent e) {
-		final int keyCode = e.getKeyCode();
-		/*
-		 * Deseleciona o objeto gráfico e remove o último ponto desse objeto.
-		 */
-		if (KeyEvent.VK_CONTROL == keyCode) {
-			final GraphicObject currentObject = world.getCurrentObject();
-			if (currentObject != null) {
-				currentObject.removeLastPoint();
-				Render.glDrawable.display();
-				world.removeCurrentObject();
-			}
-		}
 	}
 
 	/**
