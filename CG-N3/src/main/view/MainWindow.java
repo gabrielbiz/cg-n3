@@ -17,7 +17,7 @@ public class MainWindow extends JFrame {
 	public static final MainWindow mainWindow = new MainWindow();
 
 	private final World world = new World();
-	private final Render renderer = new Render(world);
+	private final Render render = new Render(world);
 	private final Controller controller = new Controller(world);
 
 	public MainWindow() {
@@ -42,7 +42,7 @@ public class MainWindow extends JFrame {
 		 */
 		canvas = new GLCanvas(glCaps);
 		add(canvas, BorderLayout.CENTER);
-		canvas.addGLEventListener(renderer);
+		canvas.addGLEventListener(render);
 		canvas.addKeyListener(controller);
 		canvas.addMouseListener(controller);
 		canvas.addMouseMotionListener(controller);
