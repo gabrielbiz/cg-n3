@@ -1,4 +1,5 @@
 package main;
+
 import javax.media.opengl.GL;
 
 public class BBox {
@@ -9,7 +10,7 @@ public class BBox {
 	public int maxX;
 	public int maxY;
 	public int maxZ;
-	
+
 	public BBox(int minX, int minY, int minZ, int maxX, int maxY, int maxZ) {
 		this.minX = minX;
 		this.minY = minY;
@@ -26,6 +27,7 @@ public class BBox {
 	public void draw(final GL gl) {
 		gl.glLineWidth(2f);
 		gl.glPointSize(2f);
+		gl.glColor3f(0f, 0f, 0f);
 		gl.glBegin(GL.GL_LINE_LOOP);
 		gl.glVertex2d(minX, maxY);
 		gl.glVertex2d(maxX, maxY);
@@ -35,16 +37,12 @@ public class BBox {
 	}
 
 	public boolean contains(final Point4D ponto) {
-		final int x = ponto.x;
+		final int x = ponto.getX();
 		if (x > maxX || x < minX) {
 			return false;
 		}
-		final int y = ponto.y;
+		final int y = ponto.getY();
 		if (y > maxY || y < minY) {
-			return false;
-		}
-		final int z = ponto.z;
-		if (z > maxZ || z < minZ) {
 			return false;
 		}
 		return true;

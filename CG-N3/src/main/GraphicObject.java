@@ -8,68 +8,101 @@ import javax.media.opengl.GL;
 public class GraphicObject {
 
 	public BBox bbox;
-	public List<Point4D> points;
-	public int primitive;
+	public LinkedList<Point4D> points;
+	public int primitive = GL.GL_LINE_STRIP;
 	public Transformation transformation;
-	public float[] color;
+	public float[] color = { 1.0f, 0.0f, 1.0f };
 	public List<GraphicObject> objects;
 
-	public GraphicObject(List<Point4D> points) {
+	public GraphicObject(LinkedList<Point4D> points) {
 		this.points = points;
 		calculateBBox();
 	}
-	
+
 	public GraphicObject() {
 		this(new LinkedList<Point4D>());
 	}
-	
-	public void addPoint(Point4D point) {
-		points.add(point);
-		calculateBBox();
+
+	public void removeLastPoint() {
+		if (points.isEmpty()) {
+			return;
+		}
+		points.removeLast();
 	}
-	
+
+	public void updateLastPoint(Point4D point) {
+		if (points.isEmpty()) {
+			return;
+		}
+		points.removeLast();
+		points.add(point);
+	}
+
+	public void addPoint(final int x, final int y) {
+		final Point4D point = new Point4D(x, y);
+		addPoint(point);
+	}
+
+	public void addPoint(final Point4D point) {
+		points.add(point);
+		// calculateBBox();
+	}
+
+	public Point4D lastPoint() {
+		return points.getLast();
+	}
+
 	public void draw(GL gl) {
-		gl.glLineWidth(2f);
-		gl.glPointSize(2f);
+		gl.glLineWidth(3f);
+		gl.glPointSize(3f);
 		gl.glBegin(primitive);
-		points.forEach(p -> gl.glVertex2d(p.x, p.y));
+		for (Point4D point : points) {
+			gl.glColor3f(color[0], color[1], color[2]);
+			gl.glVertex2d(point.getX(), point.getY());
+		}
 		gl.glEnd();
 	}
-	
+
 	/**
 	 * Verifica se um ponto está contido dentro deste objeto gráfico
-	 * @param point ponto
-	 * @return está contido
+	 * 
+	 * @param point
+	 *            ponto
+	 * @return <code>true</code> se o ponto está contido dentro deste objeto,
+	 *         <code>false</code> de outra maneira.
 	 */
-	public boolean contains(Point4D point) {
-		if (bbox.contains(point)) {
-			// faz calculo mais preciso
-			return true;
-		}
-		return false;
+	public boolean contains(final Point4D point) {
+		return bbox.contains(point);
 	}
-	
-	private void calculateBBox() {
-		int minX = Integer.MAX_VALUE;
-		int minY = Integer.MAX_VALUE;
-		int maxX = 0;
-		int maxY = 0;
-		
-		for (Point4D point : points) {
-			if (point.x < minX) {
-				minX = point.x;
-			} else if (point.x > maxX) {
-				maxX = point.x;
+
+	public void calculateBBox() {
+		if (points.isEmpty()) {
+			return;
+		}
+
+		final Point4D first = points.getFirst();
+		int minX = first.getX();
+		int maxX = minX;
+		int minY = first.getY();
+		int maxY = minY;
+
+		for (int i = 1; i < points.size(); i++) {
+			final Point4D point = points.get(i);
+			final int x = point.getX();
+			final int y = point.getY();
+			if (x < minX) {
+				minX = x;
+			} else if (x > maxX) {
+				maxX = x;
 			}
-			
-			if (point.y < minY) {
-				minY = point.y;
-			} else if (point.y > maxY) {
-				maxY = point.y;
+
+			if (y < minY) {
+				minY = y;
+			} else if (y > maxY) {
+				maxY = y;
 			}
 		}
-		
+
 		bbox = new BBox(minX, minY, maxX, maxY);
 	}
-	
 }
