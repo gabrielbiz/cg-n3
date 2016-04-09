@@ -45,7 +45,8 @@ public class GraphicObject {
 
 	public void addPoint(final Point4D point) {
 		points.add(point);
-		// calculateBBox();
+		// Toda vida que adicionar um ponto novo no objeto, tem que ser recalculado a BBox, pois ela pode mudar de tamanho
+		calculateBBox(); 
 	}
 
 	public Point4D lastPoint() {
