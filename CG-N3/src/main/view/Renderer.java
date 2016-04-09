@@ -17,7 +17,11 @@ public class Renderer implements GLEventListener, KeyListener, MouseListener, Mo
 	
 	private GL gl;
 	private GLAutoDrawable glDrawable;
-	private World world = new World();
+	private final World world;
+	
+	public Renderer(World world) {
+		this.world = world;
+	}
 	
 	public void init(GLAutoDrawable drawable) {
 		System.out.println(" --- init ---");
@@ -97,6 +101,7 @@ public class Renderer implements GLEventListener, KeyListener, MouseListener, Mo
 
 	@Override
 	public void mousePressed(MouseEvent e) {
+		
 //	    oldMouseX = e.getX();
 //	    oldMouseY = e.getY();
 	}

@@ -9,6 +9,19 @@ public class BBox {
 	public int maxX;
 	public int maxY;
 	public int maxZ;
+	
+	public BBox(int minX, int minY, int minZ, int maxX, int maxY, int maxZ) {
+		this.minX = minX;
+		this.minY = minY;
+		this.minZ = minZ;
+		this.maxX = maxX;
+		this.maxY = maxY;
+		this.maxZ = maxZ;
+	}
+
+	public BBox(int minX, int minY, int maxX, int maxY) {
+		this(minX, minY, 0, maxX, maxY, 0);
+	}
 
 	public void draw(final GL gl) {
 		gl.glLineWidth(2f);

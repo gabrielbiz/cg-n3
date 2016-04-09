@@ -7,10 +7,15 @@ import javax.media.opengl.GLCapabilities;
 import javax.swing.JFrame;
 import javax.swing.WindowConstants;
 
+import main.World;
+import main.controller.Controller;
+
 public class MainWindow extends JFrame {
 
 	private static final long serialVersionUID = 1L;
-	private Renderer renderer = new Renderer();
+	private World world = new World();
+	private Renderer renderer = new Renderer(world);
+	private Controller controller = new Controller(world);
 	
 	public MainWindow() {		
 		super("CG-N3");   
@@ -33,9 +38,9 @@ public class MainWindow extends JFrame {
 		GLCanvas canvas = new GLCanvas(glCaps);
 		add(canvas,BorderLayout.CENTER);
 		canvas.addGLEventListener(renderer);        
-		canvas.addKeyListener(renderer);
-		canvas.addMouseListener(renderer);
-		canvas.addMouseMotionListener(renderer);
+		canvas.addKeyListener(controller);
+		canvas.addMouseListener(controller);
+		canvas.addMouseMotionListener(controller);
 		canvas.requestFocus();			
 	}		
 	
