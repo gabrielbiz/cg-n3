@@ -70,6 +70,10 @@ public class GraphicObject implements Drawable {
 		return points.size() - 1;
 	}
 
+	public Point4D getLastPoint() {
+		return points.isEmpty() ? null : points.getLast();
+	}
+
 	public void addPoint(final Point4D point) {
 		points.add(point);
 		adjustBBox();
@@ -77,6 +81,10 @@ public class GraphicObject implements Drawable {
 
 	public Point4D lastPoint() {
 		return points.getLast();
+	}
+
+	public List<Point4D> points() {
+		return points;
 	}
 
 	@Override

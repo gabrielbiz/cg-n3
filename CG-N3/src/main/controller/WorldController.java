@@ -6,7 +6,12 @@ import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 
+import main.BBox;
 import main.Camera;
 import main.GraphicObject;
 import main.Point4D;
@@ -20,6 +25,9 @@ public class WorldController implements KeyListener, MouseListener, MouseMotionL
 	private final Render render;
 
 	private int mousePointIndex;
+	private boolean isCtrlPressed = false;
+	private boolean isEditingVertex = false;
+	private Map<Integer, BBox> currentObjectBBoxPoints = new HashMap<>();;
 
 	public WorldController(final World world, final Render render) {
 		this.world = world;
@@ -30,6 +38,9 @@ public class WorldController implements KeyListener, MouseListener, MouseMotionL
 		final Camera camera = world.getCamera();
 		final float[] axis = camera.axisSizes();
 		render.addDrawable(world);
+		if (isCtrlPressed) {
+
+		}
 		render.setAxisSizes(axis);
 		render.render();
 	}
@@ -40,18 +51,35 @@ public class WorldController implements KeyListener, MouseListener, MouseMotionL
 
 	@Override
 	public void mouseMoved(MouseEvent e) {
-		if (world.hasCurrentObject() && mousePointIndex >= 0) {
-			final GraphicObject graphicObject = world.getCurrentObject();
-			final Point4D newPoint = worldPoint(e);
-			graphicObject.alterPointAt(mousePointIndex, newPoint);
-			render();
+		final Point4D current = worldPoint(e);
+		if (world.hasCurrentObject()) {
+			if (mousePointIndex >= 0) {
+				final GraphicObject graphicObject = world.getCurrentObject();
+				graphicObject.alterPointAt(mousePointIndex, current);
+			} else {
+				int index = findIndexOfPointAt(current);
+				if (index >= 0) {
+					mousePointIndex = index;
+					render.addDrawable(currentObjectBBoxPoints.get(index));
+				}
+			}
 		}
+		render();
 	}
 
 	@Override
 	public void mouseClicked(MouseEvent e) {
-		mousePointIndex = -1;
+		System.out.println("c");
 		final Point4D current = worldPoint(e);
+		if (world.hasCurrentObject()) {
+			int index = findIndexOfPointAt(current);
+			if (index >= 0) {
+				mousePointIndex = index;
+				return;
+			}
+		}
+
+		mousePointIndex = -1;
 		GraphicObject object = world.findObjectAt(current);
 
 		if (object != null) {
@@ -71,6 +99,7 @@ public class WorldController implements KeyListener, MouseListener, MouseMotionL
 			// render()
 			mousePointIndex = object.getLastPointIndex();
 		}
+		updateCurrentObjectBBoxPoints(object);
 		render();
 	}
 
@@ -96,6 +125,9 @@ public class WorldController implements KeyListener, MouseListener, MouseMotionL
 
 	@Override
 	public void keyPressed(KeyEvent e) {
+		if (e.getKeyCode() == KeyEvent.VK_CONTROL) {
+			isCtrlPressed = true;
+		}
 		alterCurrentObject(e);
 		updateCamera(e);
 		updateCurrentObjectColor(e);
@@ -104,6 +136,10 @@ public class WorldController implements KeyListener, MouseListener, MouseMotionL
 	@Override
 	public void keyReleased(final KeyEvent e) {
 		final int keyCode = e.getKeyCode();
+		if (keyCode == KeyEvent.VK_CONTROL) {
+			isCtrlPressed = false;
+		}
+
 		/*
 		 * Remove o ponto do mouse do objeto atual, caso ele exista.
 		 */
@@ -137,11 +173,11 @@ public class WorldController implements KeyListener, MouseListener, MouseMotionL
 		}
 
 		/*
-		 * Adiciona um ponto qualquer ao objeto atual, esse ponto é vai ser o
-		 * ponto do mouse.
+		 * Duplica o último ponto do objeto atual, esse ponto é vai ser o ponto
+		 * do mouse.
 		 */
 		final GraphicObject currentObject = world.getCurrentObject();
-		final Point4D mousePoint = new Point4D(0, 0);
+		final Point4D mousePoint = currentObject.getLastPoint().clone();
 		currentObject.addPoint(mousePoint);
 		mousePointIndex = currentObject.getLastPointIndex();
 	}
@@ -255,6 +291,36 @@ public class WorldController implements KeyListener, MouseListener, MouseMotionL
 			adjustPan(1, -50);
 			break;
 		}
+	}
+
+	private int findIndexOfPointAt(final Point4D point) {
+		for (Entry<Integer, BBox> entry : currentObjectBBoxPoints.entrySet()) {
+			if (entry.getValue().contains(point)) {
+				return entry.getKey();
+			}
+		}
+		return -1;
+	}
+
+	private void updateCurrentObjectBBoxPoints(final GraphicObject currentObject) {
+		currentObjectBBoxPoints = new HashMap<>();
+		if (currentObject == null) {
+			return;
+		}
+		List<Point4D> points = currentObject.points();
+		for (int i = 0; i < points.size(); i++) {
+			BBox bbox = bboxByPoint(points.get(i));
+			currentObjectBBoxPoints.put(i, bbox);
+
+		}
+	}
+
+	private BBox bboxByPoint(final Point4D point) {
+		final int dst = 10;
+		final int x = point.getX();
+		final int y = point.getY();
+
+		return new BBox(x - dst, y - dst, x + dst, y + dst);
 	}
 
 	/**
