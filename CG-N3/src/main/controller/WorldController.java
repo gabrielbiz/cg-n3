@@ -58,8 +58,10 @@ public class WorldController implements KeyListener, MouseListener, MouseMotionL
 			 * vertice acompanhar o ponteiro do mouse.
 			 */
 			if (isEditingVertex || isCtrlDown) {
-				final GraphicObject graphicObject = world.getCurrentObject();
-				graphicObject.alterPointAt(mousePointIndex, current);
+				if (mousePointIndex >= 0) {
+					final GraphicObject graphicObject = world.getCurrentObject();
+					graphicObject.alterPointAt(mousePointIndex, current);
+				}
 			} else {
 				int index = findIndexOfPointAt(current);
 				if (index >= 0) {
