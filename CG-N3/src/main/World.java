@@ -13,6 +13,7 @@ public class World implements Drawable {
 	private final Camera camera = new Camera();
 	private final List<GraphicObject> objects = new LinkedList<>();
 	private GraphicObject currentObject;
+	private Vertex currentVertex;
 
 	public GraphicObject findObjectAt(final Point4D point) {
 		return objects.stream().filter(o -> o.contains(point)).findFirst().orElse(null);
@@ -35,6 +36,24 @@ public class World implements Drawable {
 	 */
 	public GraphicObject getCurrentObject() {
 		return currentObject;
+	}
+
+	/**
+	 * Obtém a vértice selecionada no mundo
+	 * 
+	 * @return vértice selecionada no mundo
+	 */
+	public Vertex getCurrentVertex() {
+		return currentVertex;
+	}
+
+	/**
+	 * Altera a vértice selecionada no mundo
+	 * 
+	 * @param currentVertex vértice selecionada
+	 */
+	public void setCurrentVertex(Vertex currentVertex) {
+		this.currentVertex = currentVertex;
 	}
 
 	/**
