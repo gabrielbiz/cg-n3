@@ -7,7 +7,7 @@ import javax.media.opengl.GL;
 
 public class GraphicObject implements Drawable {
 
-	private final LinkedList<Point4D> points = new LinkedList<>();
+	private final LinkedList<Vertex> vertices = new LinkedList<>();
 	public int primitive = GL.GL_LINE_STRIP;
 	public Transformation transformation;
 	public float[] color = { 0f, 0f, 0f };
@@ -50,24 +50,24 @@ public class GraphicObject implements Drawable {
 		if (isInvalidPointIndex(index)) {
 			return;
 		}
-		points.remove(index);
+		vertices.remove(index);
 		adjustBBox();
 	}
 
 	private boolean isInvalidPointIndex(final int index) {
-		return index < 0 || points.isEmpty();
+		return index < 0 || vertices.isEmpty();
 	}
 
 	public void alterPointAt(final int index, final Point4D point) {
 		if (isInvalidPointIndex(index) || point == null) {
 			return;
 		}
-		points.set(index, point);
+		vertices.set(index, new Vertex(point));
 		adjustBBox();
 	}
 
 	public int getLastPointIndex() {
-		return points.size() - 1;
+		return vertices.size() - 1;
 	}
 
 	public Point4D getLastPoint() {
@@ -75,12 +75,12 @@ public class GraphicObject implements Drawable {
 	}
 
 	public void addPoint(final Point4D point) {
-		points.add(point);
+		vertices.add(new Vertex(point));
 		adjustBBox();
 	}
 
 	public Point4D lastPoint() {
-		return points.getLast();
+		return vertices.getLast().getPoint();
 	}
 
 	public List<Point4D> points() {
@@ -92,9 +92,9 @@ public class GraphicObject implements Drawable {
 		gl.glLineWidth(3f);
 		gl.glPointSize(3f);
 		gl.glBegin(primitive);
-		for (Point4D point : points) {
+		for (Vertex vertex : vertices) {
 			gl.glColor3f(color[0], color[1], color[2]);
-			gl.glVertex2d(point.getX(), point.getY());
+			gl.glVertex2d(vertex.getX(), vertex.getY());
 		}
 		gl.glEnd();
 	}
@@ -113,22 +113,29 @@ public class GraphicObject implements Drawable {
 		}
 		return bbox.contains(point);
 	}
+	
+	public Vertex getVertexAtPos(final Point4D point) {
+		return vertices.stream()
+					   .filter(vertex -> vertex.contains(point))
+					   .findFirst()
+					   .orElse(null);
+	}
 
 	private void adjustBBox() {
-		if (points.isEmpty()) {
+		if (vertices.isEmpty()) {
 			return;
 		}
 
-		final Point4D first = points.getFirst();
+		final Vertex first = vertices.getFirst();
 		int minX = first.getX();
 		int maxX = minX;
 		int minY = first.getY();
 		int maxY = minY;
 
-		for (int i = 1; i < points.size(); i++) {
-			final Point4D point = points.get(i);
-			final int x = point.getX();
-			final int y = point.getY();
+		for (int i = 1; i < vertices.size(); i++) {
+			final Vertex vertex = vertices.get(i);
+			final int x = vertex.getX();
+			final int y = vertex.getY();
 			if (x < minX) {
 				minX = x;
 			} else if (x > maxX) {
