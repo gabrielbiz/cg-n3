@@ -50,7 +50,8 @@ public class World implements Drawable {
 	/**
 	 * Altera a vértice selecionada no mundo
 	 * 
-	 * @param currentVertex vértice selecionada
+	 * @param currentVertex
+	 *            vértice selecionada
 	 */
 	public void setCurrentVertex(Vertex currentVertex) {
 		this.currentVertex = currentVertex;

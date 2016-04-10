@@ -8,11 +8,17 @@ import javax.media.opengl.GL;
 public class GraphicObject implements Drawable {
 
 	private final LinkedList<Vertex> vertices = new LinkedList<>();
-	public int primitive = GL.GL_LINE_STRIP;
+	private final float[] color = { 0f, 0f, 0f };
+	private int primitive = GL.GL_LINE_STRIP;
 	public Transformation transformation;
-	public float[] color = { 0f, 0f, 0f };
 	public List<GraphicObject> objects;
 	private BBox bbox;
+
+	public void setColor(final float[] color) {
+		this.color[0] = color[0];
+		this.color[1] = color[1];
+		this.color[2] = color[2];
+	}
 
 	public void incRed() {
 		incColorAt(0);
@@ -70,8 +76,8 @@ public class GraphicObject implements Drawable {
 		return vertices.size() - 1;
 	}
 
-	public Point4D getLastPoint() {
-		return points.isEmpty() ? null : points.getLast();
+	public Vertex getLastPoint() {
+		return vertices.isEmpty() ? null : vertices.getLast();
 	}
 
 	public void addPoint(final Point4D point) {
@@ -83,8 +89,8 @@ public class GraphicObject implements Drawable {
 		return vertices.getLast().getPoint();
 	}
 
-	public List<Point4D> points() {
-		return points;
+	public List<Vertex> points() {
+		return vertices;
 	}
 
 	@Override
@@ -113,12 +119,9 @@ public class GraphicObject implements Drawable {
 		}
 		return bbox.contains(point);
 	}
-	
+
 	public Vertex getVertexAtPos(final Point4D point) {
-		return vertices.stream()
-					   .filter(vertex -> vertex.contains(point))
-					   .findFirst()
-					   .orElse(null);
+		return vertices.stream().filter(vertex -> vertex.contains(point)).findFirst().orElse(null);
 	}
 
 	private void adjustBBox() {
