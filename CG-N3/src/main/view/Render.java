@@ -1,29 +1,31 @@
 package main.view;
 
+import java.util.List;
+
 import javax.media.opengl.DebugGL;
 import javax.media.opengl.GL;
 import javax.media.opengl.GLAutoDrawable;
 import javax.media.opengl.GLEventListener;
+import javax.media.opengl.glu.GLU;
 
-import main.World;
+import main.Drawable;
 
 public class Render implements GLEventListener {
 
-	public static GLAutoDrawable glDrawable;
-	private final World world;
+	private final float[] axisSizes = { -400.0f, 400.0f, -400.0f, 400.0f };
 
 	private GL gl;
-
-	public Render(World world) {
-		this.world = world;
-	}
+	private GLU glu;
+	private List<Drawable> drawings;
+	private GLAutoDrawable glDrawable;
 
 	@Override
 	public void init(GLAutoDrawable drawable) {
-		glDrawable = drawable;
+		glu = new GLU();
 		gl = drawable.getGL();
-		world.init(gl);
-		glDrawable.setGL(new DebugGL(gl));
+		gl.glClearColor(1f, 1f, 1f, 1.0f);
+		drawable.setGL(new DebugGL(gl));
+		glDrawable = drawable;
 	}
 
 	@Override
@@ -31,13 +33,11 @@ public class Render implements GLEventListener {
 		gl.glClear(GL.GL_COLOR_BUFFER_BIT);
 		gl.glMatrixMode(GL.GL_MODELVIEW);
 		gl.glLoadIdentity();
-
-		world.renderCamera();
-
+		glu.gluOrtho2D(axisSizes[0], axisSizes[1], axisSizes[2], axisSizes[3]);
 		SRU(gl);
-
-		world.render(gl);
-
+		if (drawings != null) {
+			drawings.forEach(d -> d.draw(gl));
+		}
 		gl.glFlush();
 	}
 
@@ -50,6 +50,17 @@ public class Render implements GLEventListener {
 
 	@Override
 	public void displayChanged(GLAutoDrawable arg0, boolean arg1, boolean arg2) {
+	}
+
+	public void setDrawings(final List<Drawable> drawings) {
+		this.drawings = drawings;
+	}
+
+	public void setAxisSizes(final float[] newSizes) {
+		axisSizes[0] = newSizes[0];
+		axisSizes[1] = newSizes[1];
+		axisSizes[2] = newSizes[2];
+		axisSizes[3] = newSizes[3];
 	}
 
 	/**
@@ -71,5 +82,9 @@ public class Render implements GLEventListener {
 		gl.glVertex2f(0.0f, -200.0f);
 		gl.glVertex2f(0.0f, 200.0f);
 		gl.glEnd();
+	}
+
+	public void render() {
+		glDrawable.display();
 	}
 }

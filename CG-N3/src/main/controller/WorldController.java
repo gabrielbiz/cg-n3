@@ -6,21 +6,35 @@ import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
+import java.util.List;
 
 import main.Camera;
+import main.Drawable;
 import main.GraphicObject;
 import main.Point4D;
 import main.World;
 import main.view.MainWindow;
 import main.view.Render;
 
-public class Controller implements KeyListener, MouseListener, MouseMotionListener {
+public class WorldController implements KeyListener, MouseListener, MouseMotionListener {
 
 	private final World world;
+	private final Render render;
+
 	private int mousePointIndex;
 
-	public Controller(World world) {
+	public WorldController(final World world, final Render render) {
 		this.world = world;
+		this.render = render;
+	}
+
+	private void render() {
+		final List<Drawable> drawings = world.getDrawings();
+		final Camera camera = world.getCamera();
+		final float[] axis = camera.axisSizes();
+		render.setDrawings(drawings);
+		render.setAxisSizes(axis);
+		render.render();
 	}
 
 	@Override
@@ -33,13 +47,12 @@ public class Controller implements KeyListener, MouseListener, MouseMotionListen
 			final GraphicObject graphicObject = world.getCurrentObject();
 			final Point4D newPoint = worldPoint(e);
 			graphicObject.alterPointAt(mousePointIndex, newPoint);
-			Render.glDrawable.display();
+			render();
 		}
 	}
 
 	@Override
 	public void mouseClicked(MouseEvent e) {
-		System.out.println("F");
 		mousePointIndex = -1;
 		final Point4D current = worldPoint(e);
 		GraphicObject object = world.findObjectAt(current);
@@ -58,10 +71,10 @@ public class Controller implements KeyListener, MouseListener, MouseMotionListen
 				world.setCurrentObject(object);
 			}
 			object.addPoint(current);
-			Render.glDrawable.display();
+			// render()
 			mousePointIndex = object.getLastPointIndex();
 		}
-		Render.glDrawable.display();
+		render();
 	}
 
 	@Override
@@ -102,7 +115,7 @@ public class Controller implements KeyListener, MouseListener, MouseMotionListen
 			if (currentObject != null) {
 				currentObject.removePointAt(mousePointIndex);
 				mousePointIndex = -1;
-				Render.glDrawable.display();
+				render();
 			}
 		}
 	}
@@ -194,8 +207,8 @@ public class Controller implements KeyListener, MouseListener, MouseMotionListen
 		final Camera camera = world.getCamera();
 		final float cameraHalfWidth = camera.getCameraHalfWidth();
 		final float cameraHalfHeight = camera.getCameraHalfHeight();
-		final float xAxisOffset = cameraHalfWidth - camera.axisSizes[1];
-		final float yAxisOffset = cameraHalfHeight - camera.axisSizes[3];
+		final float xAxisOffset = cameraHalfWidth - camera.getAxis(1);
+		final float yAxisOffset = cameraHalfHeight - camera.getAxis(3);
 
 		// Agora sim é feito uma regrinha de três proporcional como o professor
 		// falou, que calcula quando eu clicar na borda do canvas, tem que nos
@@ -255,7 +268,7 @@ public class Controller implements KeyListener, MouseListener, MouseMotionListen
 	 */
 	private void zoom(final int offset) {
 		world.getCamera().zoom(offset);
-		Render.glDrawable.display();
+		render();
 	}
 
 	/**
@@ -268,6 +281,6 @@ public class Controller implements KeyListener, MouseListener, MouseMotionListen
 	 */
 	private void adjustPan(final int axis, final int offset) {
 		world.getCamera().pan(axis, offset);
-		Render.glDrawable.display();
+		render();
 	}
 }

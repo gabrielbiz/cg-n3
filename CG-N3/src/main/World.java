@@ -1,18 +1,17 @@
 package main;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
-
-import javax.media.opengl.GL;
 
 /**
  * Mundo que agrupa objetos gráficos.
  */
 public class World {
 
+	private final Camera camera = new Camera();
 	private final List<GraphicObject> objects = new LinkedList<>();
 	private GraphicObject currentObject;
-	private Camera camera;
 
 	public GraphicObject findObjectAt(final Point4D point) {
 		return objects.stream().filter(o -> o.contains(point)).findFirst().orElse(null);
@@ -63,39 +62,22 @@ public class World {
 		return camera;
 	}
 
-	public void renderCamera() {
-		camera.display();
-	}
-
 	/**
-	 * Desenha os objetos do mundo.
+	 * Obtém os desenhos do mundo.
 	 * 
-	 * @param gl
-	 *            {@link GL}
+	 * @return Os desenhos do mundo.
 	 */
-	public void render(GL gl) {
-		objects.forEach(go -> go.draw(gl));
+	public List<Drawable> getDrawings() {
+		List<Drawable> drawings = new ArrayList<>();
+		drawings.addAll(objects);
 		if (hasCurrentObject()) {
 			final GraphicObject current = getCurrentObject();
 			if (current.hasBBox()) {
 				final BBox bbox = current.getBBox();
-				bbox.draw(gl);
+				drawings.add(bbox);
 			}
 		}
-	}
-
-	/**
-	 * Inicializa a projeção do mundo.
-	 * 
-	 * Inicializa a camera do mundo com X e Y possuindo os valores de -400 até
-	 * 400 para ambos.
-	 * 
-	 * @param gl
-	 *            {@link GL}
-	 */
-	public void init(GL gl) {
-		camera = new Camera(-400.0f, 400.0f, -400.0f, 400.0f);
-		gl.glClearColor(1f, 1f, 1f, 1.0f);
+		return drawings;
 	}
 
 	/**

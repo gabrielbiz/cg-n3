@@ -8,17 +8,18 @@ import javax.swing.JFrame;
 import javax.swing.WindowConstants;
 
 import main.World;
-import main.controller.Controller;
+import main.controller.WorldController;
 
 public class MainWindow extends JFrame {
 
 	public static GLCanvas canvas;
 	private static final long serialVersionUID = 1L;
 	public static final MainWindow mainWindow = new MainWindow();
+	
 
 	private final World world = new World();
-	private final Render render = new Render(world);
-	private final Controller controller = new Controller(world);
+	private final Render render = new Render();
+	private final WorldController controller = new WorldController(world, render);
 
 	public MainWindow() {
 		super("CG-N3");
