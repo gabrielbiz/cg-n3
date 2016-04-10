@@ -1,5 +1,6 @@
 package main.view;
 
+import java.util.LinkedList;
 import java.util.List;
 
 import javax.media.opengl.DebugGL;
@@ -12,11 +13,11 @@ import main.Drawable;
 
 public class Render implements GLEventListener {
 
+	private final List<Drawable> drawings = new LinkedList<>();
 	private final float[] axisSizes = { -400.0f, 400.0f, -400.0f, 400.0f };
 
 	private GL gl;
 	private GLU glu;
-	private List<Drawable> drawings;
 	private GLAutoDrawable glDrawable;
 
 	@Override
@@ -52,8 +53,10 @@ public class Render implements GLEventListener {
 	public void displayChanged(GLAutoDrawable arg0, boolean arg1, boolean arg2) {
 	}
 
-	public void setDrawings(final List<Drawable> drawings) {
-		this.drawings = drawings;
+	public void addDrawable(final Drawable drawable) {
+		if (drawable != null) {
+			drawings.add(drawable);
+		}
 	}
 
 	public void setAxisSizes(final float[] newSizes) {

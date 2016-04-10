@@ -1,13 +1,14 @@
 package main;
 
-import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+
+import javax.media.opengl.GL;
 
 /**
  * Mundo que agrupa objetos gráficos.
  */
-public class World {
+public class World implements Drawable {
 
 	private final Camera camera = new Camera();
 	private final List<GraphicObject> objects = new LinkedList<>();
@@ -63,24 +64,6 @@ public class World {
 	}
 
 	/**
-	 * Obtém os desenhos do mundo.
-	 * 
-	 * @return Os desenhos do mundo.
-	 */
-	public List<Drawable> getDrawings() {
-		List<Drawable> drawings = new ArrayList<>();
-		drawings.addAll(objects);
-		if (hasCurrentObject()) {
-			final GraphicObject current = getCurrentObject();
-			if (current.hasBBox()) {
-				final BBox bbox = current.getBBox();
-				drawings.add(bbox);
-			}
-		}
-		return drawings;
-	}
-
-	/**
 	 * Adiciona um novo objeto gráfico ao mundo.
 	 * 
 	 * @param graphicObject
@@ -88,5 +71,17 @@ public class World {
 	 */
 	public void add(GraphicObject graphicObject) {
 		objects.add(graphicObject);
+	}
+
+	@Override
+	public void draw(GL gl) {
+		objects.forEach(o -> o.draw(gl));
+		if (hasCurrentObject()) {
+			final GraphicObject current = getCurrentObject();
+			if (current.hasBBox()) {
+				final BBox bbox = current.getBBox();
+				bbox.draw(gl);
+			}
+		}
 	}
 }

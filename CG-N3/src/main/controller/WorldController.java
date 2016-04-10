@@ -6,10 +6,8 @@ import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
-import java.util.List;
 
 import main.Camera;
-import main.Drawable;
 import main.GraphicObject;
 import main.Point4D;
 import main.World;
@@ -29,10 +27,9 @@ public class WorldController implements KeyListener, MouseListener, MouseMotionL
 	}
 
 	private void render() {
-		final List<Drawable> drawings = world.getDrawings();
 		final Camera camera = world.getCamera();
 		final float[] axis = camera.axisSizes();
-		render.setDrawings(drawings);
+		render.addDrawable(world);
 		render.setAxisSizes(axis);
 		render.render();
 	}
@@ -178,6 +175,7 @@ public class WorldController implements KeyListener, MouseListener, MouseMotionL
 			current.incBlue();
 			break;
 		}
+		render();
 	}
 
 	/**
