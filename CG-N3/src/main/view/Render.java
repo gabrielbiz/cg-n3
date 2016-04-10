@@ -88,6 +88,9 @@ public class Render implements GLEventListener {
 	}
 
 	public void render() {
+		if (glDrawable == null) {
+			return;
+		}
 		glDrawable.display();
 	}
 }
