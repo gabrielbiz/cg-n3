@@ -6,10 +6,6 @@ import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
 
 import main.Camera;
 import main.GraphicObject;
@@ -26,11 +22,10 @@ public class WorldController implements KeyListener, MouseListener, MouseMotionL
 	private final Render render;
 
 	private int colorIndex = 0;
-	private Point4D oldPoint;
-	private int mousePointIndex;
+	private Point4D initialVertexPos;
+	private int currentVertexIndex = -1;
 	private boolean isCtrlDown = false;
 	private boolean isEditingVertex = false;
-	private Map<Integer, Vertex> currentObjectBBoxPoints = new HashMap<>();;
 
 	public WorldController(final World world, final Render render) {
 		this.world = world;
@@ -51,21 +46,19 @@ public class WorldController implements KeyListener, MouseListener, MouseMotionL
 
 	@Override
 	public void mouseMoved(MouseEvent e) {
-		final Point4D current = worldPoint(e);
+		final Point4D currentPos = worldPoint(e);
 		if (world.hasCurrentObject()) {
+			
 			/*
 			 * Se estiver editando o objeto ou um vertice do objeto faz o
 			 * vertice acompanhar o ponteiro do mouse.
 			 */
-			if (isEditingVertex || isCtrlDown) {
-				if (mousePointIndex >= 0) {
-					final GraphicObject graphicObject = world.getCurrentObject();
-					graphicObject.alterPointAt(mousePointIndex, current);
-				}
+			if (currentVertexIndex != -1) {
+				world.getCurrentObject().updateVertexPointAt(currentVertexIndex, currentPos);
 			} else {
-				int index = findIndexOfPointAt(current);
-				if (index >= 0) {
-					render.addDrawable(currentObjectBBoxPoints.get(index).bbox());
+				Vertex vertexOver = world.getCurrentObject().getVertexAtPos(currentPos);
+				if (vertexOver != null) {
+					render.addDrawable(vertexOver.bbox());
 				}
 			}
 		}
@@ -74,25 +67,27 @@ public class WorldController implements KeyListener, MouseListener, MouseMotionL
 
 	@Override
 	public void mouseClicked(MouseEvent e) {
-		final Point4D current = worldPoint(e);
-		if (isEditingVertex) {
-			GraphicObject currentObject = world.getCurrentObject();
-			currentObject.alterPointAt(mousePointIndex, current);
+		final Point4D currentPos = worldPoint(e);
+		
+		GraphicObject currentObject = world.getCurrentObject();
+		
+		if (currentVertexIndex != -1) {
+			currentObject.updateVertexPointAt(currentVertexIndex, currentPos);
 			clearEdition();
+			render();
+			return;
 		}
 
 		if (world.hasCurrentObject()) {
-			int index = findIndexOfPointAt(current);
-			if (index >= 0) {
-				oldPoint = currentObjectBBoxPoints.get(index).getPoint();
+			currentVertexIndex = currentObject.getVertexIndexAtPos(currentPos);
+			if (currentVertexIndex != -1) {
+				initialVertexPos = currentObject.getVertex(currentVertexIndex).getPoint();
 				isEditingVertex = true;
-				mousePointIndex = index;
 				return;
 			}
 		}
 
-		clearMousePoint();
-		GraphicObject object = world.findObjectAt(current);
+		GraphicObject object = world.findObjectAt(currentPos);
 
 		if (object != null) {
 			world.setCurrentObject(object);
@@ -103,16 +98,19 @@ public class WorldController implements KeyListener, MouseListener, MouseMotionL
 		if (isCtrlDown) {
 			if (object == null) {
 				object = new GraphicObject();
-				object.addPoint(current.clone());
+				object.createVertexAt(currentPos.clone());
 				world.add(object);
 				world.setCurrentObject(object);
 			}
-			object.addPoint(current);
-			// render()
-			mousePointIndex = object.getLastPointIndex();
+			object.createVertexAt(currentPos);
+			currentVertexIndex = object.getLastVertexIndex();
 		}
-		updateCurrentObjectBBoxPoints(object);
 		render();
+	}
+
+	private void clearEdition() {
+		currentVertexIndex = -1;
+		isEditingVertex = false;
 	}
 
 	@Override
@@ -152,13 +150,10 @@ public class WorldController implements KeyListener, MouseListener, MouseMotionL
 				 * Se estava editando um vertice volta o ponto dele para a
 				 * posição antiga.
 				 */
-				graphicObject.alterPointAt(mousePointIndex, oldPoint);
+				graphicObject.updateVertexPointAt(currentVertexIndex, initialVertexPos);
 				clearEdition();
 			} else if (keyCode == KeyEvent.VK_R) {
-				/*
-				 * Remove o vertice que estava sendo editado.
-				 */
-				graphicObject.removePointAt(mousePointIndex);
+				graphicObject.removeVertexAt(currentVertexIndex);
 				clearEdition();
 			}
 			return;
@@ -167,16 +162,6 @@ public class WorldController implements KeyListener, MouseListener, MouseMotionL
 		alterCurrentObject(e);
 		updateCamera(e);
 		updateCurrentObjectColor(e);
-	}
-
-	private void clearEdition() {
-		oldPoint = null;
-		clearMousePoint();
-		isEditingVertex = false;
-	}
-
-	private void clearMousePoint() {
-		mousePointIndex = -1;
 	}
 
 	@Override
@@ -192,8 +177,8 @@ public class WorldController implements KeyListener, MouseListener, MouseMotionL
 		if (KeyEvent.VK_CONTROL == keyCode && !isEditingVertex) {
 			final GraphicObject currentObject = world.getCurrentObject();
 			if (currentObject != null) {
-				currentObject.removePointAt(mousePointIndex);
-				clearMousePoint();
+				currentObject.removeVertexAt(currentVertexIndex);
+				clearEdition();
 				render();
 			}
 		}
@@ -214,7 +199,7 @@ public class WorldController implements KeyListener, MouseListener, MouseMotionL
 		/*
 		 * Caso o ponto do mouse já exista apenas retorna.
 		 */
-		if (mousePointIndex >= 0) {
+		if (currentVertexIndex != -1) {
 			return;
 		}
 
@@ -223,9 +208,9 @@ public class WorldController implements KeyListener, MouseListener, MouseMotionL
 		 * do mouse.
 		 */
 		final GraphicObject currentObject = world.getCurrentObject();
-		final Point4D mousePoint = currentObject.getLastPoint().getPoint().clone();
-		currentObject.addPoint(mousePoint);
-		mousePointIndex = currentObject.getLastPointIndex();
+		final Point4D mousePoint = currentObject.getLastVertex().getPoint().clone();
+		currentObject.createVertexAt(mousePoint);
+		currentVertexIndex = currentObject.getLastVertexIndex();
 	}
 
 	/**
@@ -343,27 +328,6 @@ public class WorldController implements KeyListener, MouseListener, MouseMotionL
 		case KeyEvent.VK_B:
 			adjustPan(1, -50);
 			break;
-		}
-	}
-
-	private int findIndexOfPointAt(final Point4D point) {
-		for (Entry<Integer, Vertex> entry : currentObjectBBoxPoints.entrySet()) {
-			if (entry.getValue().contains(point)) {
-				return entry.getKey();
-			}
-		}
-		return -1;
-	}
-
-	private void updateCurrentObjectBBoxPoints(final GraphicObject currentObject) {
-		currentObjectBBoxPoints = new HashMap<>();
-		if (currentObject == null) {
-			return;
-		}
-		List<Vertex> points = currentObject.points();
-		for (int i = 0; i < points.size(); i++) {
-			currentObjectBBoxPoints.put(i, points.get(i));
-
 		}
 	}
 

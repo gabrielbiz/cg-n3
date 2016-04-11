@@ -10,7 +10,7 @@ public class GraphicObject implements Drawable {
 	private final LinkedList<Vertex> vertices = new LinkedList<>();
 	private final float[] color = { 0f, 0f, 0f };
 	private int primitive = GL.GL_LINE_STRIP;
-	public Transformation transformation;
+	public Transform transformation;
 	public List<GraphicObject> objects;
 	private BBox bbox;
 
@@ -52,45 +52,29 @@ public class GraphicObject implements Drawable {
 		return bbox != null;
 	}
 
-	public void removePointAt(final int index) {
-		if (isInvalidPointIndex(index)) {
-			return;
-		}
-		vertices.remove(index);
-		adjustBBox();
+	private boolean isInvalidValidVertexPoint(final int index) {
+		return index < 0 || index > getLastVertexIndex();
 	}
 
-	private boolean isInvalidPointIndex(final int index) {
-		return index < 0 || vertices.isEmpty();
-	}
-
-	public void alterPointAt(final int index, final Point4D point) {
-		if (isInvalidPointIndex(index) || point == null) {
+	public void updateVertexPointAt(final int index, final Point4D point) {
+		if (isInvalidValidVertexPoint(index) || point == null) {
 			return;
 		}
 		vertices.set(index, new Vertex(point));
 		adjustBBox();
 	}
 
-	public int getLastPointIndex() {
-		return vertices.size() - 1;
-	}
-
-	public Vertex getLastPoint() {
-		return vertices.isEmpty() ? null : vertices.getLast();
-	}
-
-	public void addPoint(final Point4D point) {
+	public void createVertexAt(final Point4D point) {
 		vertices.add(new Vertex(point));
 		adjustBBox();
 	}
 
-	public Point4D lastPoint() {
-		return vertices.getLast().getPoint();
-	}
-
-	public List<Vertex> points() {
-		return vertices;
+	public void removeVertexAt(final int currentVertexIndex) {
+		if (isInvalidValidVertexPoint(currentVertexIndex)) {
+			return;
+		}
+		vertices.remove(currentVertexIndex);
+		adjustBBox();
 	}
 
 	@Override
@@ -120,8 +104,32 @@ public class GraphicObject implements Drawable {
 		return bbox.contains(point);
 	}
 
+	public Vertex getVertex(final int index) {
+		return vertices.get(index);
+	}
+	
 	public Vertex getVertexAtPos(final Point4D point) {
-		return vertices.stream().filter(vertex -> vertex.contains(point)).findFirst().orElse(null);
+		return vertices.stream()
+					   .filter(vertex -> vertex.contains(point))
+					   .findFirst()
+					   .orElse(null);
+	}
+	
+	public int getVertexIndexAtPos(final Point4D point) {
+		for (int i = 0; i < vertices.size(); i++) {
+			if (vertices.get(i).contains(point)) {
+				return i;
+			}
+		}
+		return -1;
+	}
+
+	public int getLastVertexIndex() {
+		return vertices.size() - 1;
+	}
+
+	public Vertex getLastVertex() {
+		return vertices.isEmpty() ? null : vertices.getLast();
 	}
 
 	private void adjustBBox() {
@@ -154,4 +162,5 @@ public class GraphicObject implements Drawable {
 
 		bbox = new BBox(minX, minY, maxX, maxY);
 	}
+
 }
