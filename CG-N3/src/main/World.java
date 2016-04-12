@@ -75,6 +75,15 @@ public class World implements Drawable {
 	public void add(GraphicObject graphicObject) {
 		objects.add(graphicObject);
 	}
+	
+	/**
+	 * Remove um objeto gráfico do mundo.
+	 * 
+	 * @param graphicObject objeto a ser removido.
+	 */
+	public void remove(GraphicObject graphicObject) {
+		objects.remove(graphicObject);
+	}
 
 	@Override
 	public void draw(GL gl) {
@@ -87,4 +96,5 @@ public class World implements Drawable {
 			}
 		}
 	}
+
 }

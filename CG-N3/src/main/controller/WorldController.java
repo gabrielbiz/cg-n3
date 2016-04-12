@@ -192,25 +192,31 @@ public class WorldController implements KeyListener, MouseListener, MouseMotionL
 	 */
 	private void alterCurrentObject(final KeyEvent e) {
 		final int keyCode = e.getKeyCode();
-		if (!world.hasCurrentObject() || KeyEvent.VK_CONTROL != keyCode) {
-			return;
-		}
-
 		/*
-		 * Caso o ponto do mouse já exista apenas retorna.
+		 * Está com um objeto selecionado e não está editando vértices
 		 */
-		if (currentVertexIndex != -1) {
-			return;
+		if (world.hasCurrentObject() && currentVertexIndex == -1) {
+			final GraphicObject currentObject = world.getCurrentObject();
+			
+			switch (keyCode) {
+				/* Adicionar novo vértice */
+				case KeyEvent.VK_CONTROL:
+					/*
+					 * Duplica o último ponto do objeto atual, esse ponto é vai ser o ponto
+					 * do mouse.
+					 */
+					final Point4D mousePoint = currentObject.getLastVertex().getPoint().clone();
+					currentObject.createVertexAt(mousePoint);
+					currentVertexIndex = currentObject.getLastVertexIndex();
+					break;
+				
+				/* Excluir objeto */
+				case KeyEvent.VK_R:
+					world.remove(currentObject);
+					world.removeCurrentObject();
+					break;
+			}
 		}
-
-		/*
-		 * Duplica o último ponto do objeto atual, esse ponto é vai ser o ponto
-		 * do mouse.
-		 */
-		final GraphicObject currentObject = world.getCurrentObject();
-		final Point4D mousePoint = currentObject.getLastVertex().getPoint().clone();
-		currentObject.createVertexAt(mousePoint);
-		currentVertexIndex = currentObject.getLastVertexIndex();
 	}
 
 	/**
