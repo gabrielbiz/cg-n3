@@ -40,8 +40,8 @@ public class GraphicObject implements Drawable {
 	 */
 	private void incColorAt(final int index) {
 		float v = color[index];
-		v++;
-		color[index] = v > 255 ? 0 : v;
+		v = v + 0.05f;
+		color[index] = v > 1 ? 0 : v;
 	}
 
 	public BBox getBBox() {
@@ -107,14 +107,11 @@ public class GraphicObject implements Drawable {
 	public Vertex getVertex(final int index) {
 		return vertices.get(index);
 	}
-	
+
 	public Vertex getVertexAtPos(final Point4D point) {
-		return vertices.stream()
-					   .filter(vertex -> vertex.contains(point))
-					   .findFirst()
-					   .orElse(null);
+		return vertices.stream().filter(vertex -> vertex.contains(point)).findFirst().orElse(null);
 	}
-	
+
 	public int getVertexIndexAtPos(final Point4D point) {
 		for (int i = 0; i < vertices.size(); i++) {
 			if (vertices.get(i).contains(point)) {

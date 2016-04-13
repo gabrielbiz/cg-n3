@@ -226,9 +226,9 @@ public class WorldController implements KeyListener, MouseListener, MouseMotionL
 	 * <p>
 	 * Função das teclas:
 	 * <ul>
-	 * <li>Tecla 1 soma +1 na cor Vermelha;</li>
-	 * <li>Tecla 2 soma +1 na cor Verde;</li>
-	 * <li>Tecla 3 soma +1 na cor Azul.</li>
+	 * <li>Tecla 1 soma +0.05 na cor Vermelha;</li>
+	 * <li>Tecla 2 soma +0.05 na cor Verde;</li>
+	 * <li>Tecla 3 soma +0.05 na cor Azul.</li>
 	 * </ul>
 	 * 
 	 * @param e
