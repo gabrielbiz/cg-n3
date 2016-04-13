@@ -48,7 +48,7 @@ public class WorldController implements KeyListener, MouseListener, MouseMotionL
 	public void mouseMoved(MouseEvent e) {
 		final Point4D currentPos = worldPoint(e);
 		if (world.hasCurrentObject()) {
-			
+
 			/*
 			 * Se estiver editando o objeto ou um vertice do objeto faz o
 			 * vertice acompanhar o ponteiro do mouse.
@@ -68,9 +68,9 @@ public class WorldController implements KeyListener, MouseListener, MouseMotionL
 	@Override
 	public void mouseClicked(MouseEvent e) {
 		final Point4D currentPos = worldPoint(e);
-		
+
 		GraphicObject currentObject = world.getCurrentObject();
-		
+
 		if (currentVertexIndex != -1) {
 			currentObject.updateVertexPointAt(currentVertexIndex, currentPos);
 			clearEdition();
@@ -156,12 +156,14 @@ public class WorldController implements KeyListener, MouseListener, MouseMotionL
 				graphicObject.removeVertexAt(currentVertexIndex);
 				clearEdition();
 			}
+			render();
 			return;
 		}
 
 		alterCurrentObject(e);
 		updateCamera(e);
 		updateCurrentObjectColor(e);
+		render();
 	}
 
 	@Override
@@ -197,24 +199,24 @@ public class WorldController implements KeyListener, MouseListener, MouseMotionL
 		 */
 		if (world.hasCurrentObject() && currentVertexIndex == -1) {
 			final GraphicObject currentObject = world.getCurrentObject();
-			
+
 			switch (keyCode) {
-				/* Adicionar novo vértice */
-				case KeyEvent.VK_CONTROL:
-					/*
-					 * Duplica o último ponto do objeto atual, esse ponto é vai ser o ponto
-					 * do mouse.
-					 */
-					final Point4D mousePoint = currentObject.getLastVertex().getPoint().clone();
-					currentObject.createVertexAt(mousePoint);
-					currentVertexIndex = currentObject.getLastVertexIndex();
-					break;
-				
-				/* Excluir objeto */
-				case KeyEvent.VK_R:
-					world.remove(currentObject);
-					world.removeCurrentObject();
-					break;
+			/* Adicionar novo vértice */
+			case KeyEvent.VK_CONTROL:
+				/*
+				 * Duplica o último ponto do objeto atual, esse ponto é vai ser
+				 * o ponto do mouse.
+				 */
+				final Point4D mousePoint = currentObject.getLastVertex().getPoint().clone();
+				currentObject.createVertexAt(mousePoint);
+				currentVertexIndex = currentObject.getLastVertexIndex();
+				break;
+
+			/* Excluir objeto */
+			case KeyEvent.VK_R:
+				world.remove(currentObject);
+				world.removeCurrentObject();
+				break;
 			}
 		}
 	}
