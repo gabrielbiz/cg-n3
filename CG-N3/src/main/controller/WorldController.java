@@ -18,6 +18,7 @@ import main.view.Render;
 
 public class WorldController implements KeyListener, MouseListener, MouseMotionListener {
 
+	private static final int TRANSLATE = 20;
 	private final World world;
 	private final Render render;
 
@@ -201,22 +202,38 @@ public class WorldController implements KeyListener, MouseListener, MouseMotionL
 			final GraphicObject currentObject = world.getCurrentObject();
 
 			switch (keyCode) {
-			/* Adicionar novo vértice */
-			case KeyEvent.VK_CONTROL:
-				/*
-				 * Duplica o último ponto do objeto atual, esse ponto é vai ser
-				 * o ponto do mouse.
-				 */
-				final Point4D mousePoint = currentObject.getLastVertex().getPoint().clone();
-				currentObject.createVertexAt(mousePoint);
-				currentVertexIndex = currentObject.getLastVertexIndex();
-				break;
-
-			/* Excluir objeto */
-			case KeyEvent.VK_R:
-				world.remove(currentObject);
-				world.removeCurrentObject();
-				break;
+				/* Adicionar novo vértice */
+				case KeyEvent.VK_CONTROL:
+					/*
+					 * Duplica o último ponto do objeto atual, esse ponto é vai ser
+					 * o ponto do mouse.
+					 */
+					final Point4D mousePoint = currentObject.getLastVertex().getPoint().clone();
+					currentObject.createVertexAt(mousePoint);
+					currentVertexIndex = currentObject.getLastVertexIndex();
+					break;
+	
+				/* Excluir objeto */
+				case KeyEvent.VK_R:
+					world.remove(currentObject);
+					world.removeCurrentObject();
+					break;
+				
+				case KeyEvent.VK_UP:
+					currentObject.translate(0, TRANSLATE);
+					break;
+					
+				case KeyEvent.VK_DOWN:
+					currentObject.translate(0, -TRANSLATE);
+					break;
+					
+				case KeyEvent.VK_LEFT:
+					currentObject.translate(-TRANSLATE, 0);
+					break;
+					
+				case KeyEvent.VK_RIGHT:
+					currentObject.translate(TRANSLATE, 0);
+					break;
 			}
 		}
 	}

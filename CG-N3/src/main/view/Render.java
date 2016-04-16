@@ -31,9 +31,9 @@ public class Render implements GLEventListener {
 	@Override
 	public void display(GLAutoDrawable arg0) {
 		gl.glClear(GL.GL_COLOR_BUFFER_BIT);
+		glu.gluOrtho2D(axisSizes[0], axisSizes[1], axisSizes[2], axisSizes[3]);
 		gl.glMatrixMode(GL.GL_MODELVIEW);
 		gl.glLoadIdentity();
-		glu.gluOrtho2D(axisSizes[0], axisSizes[1], axisSizes[2], axisSizes[3]);
 		SRU(gl);
 		while (!drawings.isEmpty()) {
 			Drawable d = drawings.pop();

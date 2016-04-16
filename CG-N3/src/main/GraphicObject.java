@@ -10,7 +10,7 @@ public class GraphicObject implements Drawable {
 	private final LinkedList<Vertex> vertices = new LinkedList<>();
 	private final float[] color = { 0f, 0f, 0f };
 	private int primitive = GL.GL_LINE_STRIP;
-	public Transform transformation;
+	public Transform transform = new Transform();
 	public List<GraphicObject> objects;
 	private BBox bbox;
 
@@ -79,14 +79,20 @@ public class GraphicObject implements Drawable {
 
 	@Override
 	public void draw(final GL gl) {
+		gl.glPushMatrix();
+		
+		gl.glMultMatrixd(transform.getDate(), 0);
 		gl.glLineWidth(3f);
 		gl.glPointSize(3f);
+		
 		gl.glBegin(primitive);
 		for (Vertex vertex : vertices) {
 			gl.glColor3f(color[0], color[1], color[2]);
 			gl.glVertex2d(vertex.getX(), vertex.getY());
 		}
 		gl.glEnd();
+		
+		gl.glPopMatrix();
 	}
 
 	/**
@@ -128,6 +134,13 @@ public class GraphicObject implements Drawable {
 	public Vertex getLastVertex() {
 		return vertices.isEmpty() ? null : vertices.getLast();
 	}
+	
+	public void translate(int x, int y) {
+		Transform translateTransform = new Transform();
+		translateTransform.translate(x, y, 0);
+		transform = transform.transformMatrix(translateTransform);
+		bbox.setTransform(transform);
+	}
 
 	private void adjustBBox() {
 		if (vertices.isEmpty()) {
@@ -157,7 +170,7 @@ public class GraphicObject implements Drawable {
 			}
 		}
 
-		bbox = new BBox(minX, minY, maxX, maxY);
+		bbox = new BBox(minX, minY, 0, maxX, maxY, 0, transform);
 	}
 
 }

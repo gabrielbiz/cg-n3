@@ -13,14 +13,16 @@ public class BBox implements Drawable {
 	private final int maxY;
 	private final int maxZ;
 	private final float[] color = ColorUtils.BROWN.clone();
+	private Transform transform;
 
-	private BBox(int minX, int minY, int minZ, int maxX, int maxY, int maxZ) {
+	public BBox(int minX, int minY, int minZ, int maxX, int maxY, int maxZ, Transform transform) {
 		this.minX = minX;
 		this.minY = minY;
 		this.minZ = minZ;
 		this.maxX = maxX;
 		this.maxY = maxY;
 		this.maxZ = maxZ;
+		this.transform = transform;
 	}
 
 	public BBox(int minX, int minY, int maxX, int maxY, float[] color) {
@@ -31,11 +33,17 @@ public class BBox implements Drawable {
 	}
 
 	public BBox(int minX, int minY, int maxX, int maxY) {
-		this(minX, minY, 0, maxX, maxY, 0);
+		this(minX, minY, 0, maxX, maxY, 0, null);
 	}
 
 	@Override
 	public void draw(final GL gl) {
+		gl.glPushMatrix();
+		
+		if (transform != null) {
+			gl.glMultMatrixd(transform.getDate(), 0);
+		}
+		
 		gl.glLineWidth(2f);
 		gl.glPointSize(2f);
 		gl.glColor3f(color[0], color[1], color[2]);
@@ -45,6 +53,8 @@ public class BBox implements Drawable {
 		gl.glVertex2d(maxX, minY);
 		gl.glVertex2d(minX, minY);
 		gl.glEnd();
+		
+		gl.glPopMatrix();
 	}
 
 	public boolean contains(final Point4D ponto) {
@@ -57,6 +67,10 @@ public class BBox implements Drawable {
 			return false;
 		}
 		return true;
+	}
+	
+	public void setTransform(Transform transform) {
+		this.transform = transform;
 	}
 
 	@Override

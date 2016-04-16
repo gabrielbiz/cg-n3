@@ -4,12 +4,18 @@ public class Point4D {
 
 	private final int x;
 	private final int y;
-	private final int z = 0;
-	private final int w = 1;
+	private final int z;
+	private final int w;
 
 	public Point4D(int x, int y) {
+		this(x, y, 0, 1);
+	}
+	
+	public Point4D(int x, int y, int z, int w) {
 		this.x = x;
 		this.y = y;
+		this.z = z;
+		this.w = w;
 	}
 
 	public int getX() {
@@ -26,6 +32,10 @@ public class Point4D {
 
 	public int getW() {
 		return w;
+	}
+	
+	public Point4D getInverted() {
+		return new Point4D(x * -1, y * -1);
 	}
 
 	@Override
