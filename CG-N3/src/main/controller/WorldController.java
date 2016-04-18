@@ -47,17 +47,18 @@ public class WorldController implements KeyListener, MouseListener, MouseMotionL
 
 	@Override
 	public void mouseMoved(MouseEvent e) {
-		final Point4D currentPos = worldPoint(e);
 		if (world.hasCurrentObject()) {
+			GraphicObject currentObject = world.getCurrentObject();
+			final Point4D currentPos = currentObject.transform.getInverseMatriz().transformPoint(worldPoint(e));
 
 			/*
 			 * Se estiver editando o objeto ou um vertice do objeto faz o
 			 * vertice acompanhar o ponteiro do mouse.
 			 */
 			if (currentVertexIndex != -1) {
-				world.getCurrentObject().updateVertexPointAt(currentVertexIndex, currentPos);
+				currentObject.updateVertexPointAt(currentVertexIndex, currentPos);
 			} else {
-				Vertex vertexOver = world.getCurrentObject().getVertexAtPos(currentPos);
+				Vertex vertexOver = currentObject.getVertexAtPos(currentPos);
 				if (vertexOver != null) {
 					render.addDrawable(vertexOver.bbox());
 				}
@@ -69,18 +70,22 @@ public class WorldController implements KeyListener, MouseListener, MouseMotionL
 	@Override
 	public void mouseClicked(MouseEvent e) {
 		final Point4D currentPos = worldPoint(e);
+		Point4D transformedPos = null;
 
 		GraphicObject currentObject = world.getCurrentObject();
+		if (currentObject != null) {
+			transformedPos = currentObject.transform.getInverseMatriz().transformPoint(currentPos);
+		}
 
 		if (currentVertexIndex != -1) {
-			currentObject.updateVertexPointAt(currentVertexIndex, currentPos);
+			currentObject.updateVertexPointAt(currentVertexIndex, transformedPos);
 			clearEdition();
 			render();
 			return;
 		}
 
 		if (world.hasCurrentObject()) {
-			currentVertexIndex = currentObject.getVertexIndexAtPos(currentPos);
+			currentVertexIndex = currentObject.getVertexIndexAtPos(transformedPos);
 			if (currentVertexIndex != -1) {
 				initialVertexPos = currentObject.getVertex(currentVertexIndex).getPoint();
 				isEditingVertex = true;
@@ -233,6 +238,14 @@ public class WorldController implements KeyListener, MouseListener, MouseMotionL
 					
 				case KeyEvent.VK_RIGHT:
 					currentObject.translate(TRANSLATE, 0);
+					break;
+					
+				case KeyEvent.VK_F1:
+					currentObject.rotateZ(Math.toRadians(5));
+					break;
+					
+				case KeyEvent.VK_F2:
+					currentObject.rotateZ(Math.toRadians(-5));
 					break;
 			}
 		}

@@ -16,7 +16,7 @@ public class World implements Drawable {
 
 	public GraphicObject findObjectAt(final Point4D point) {
 		return objects.stream()
-					  .filter(o -> o.contains(point))
+					  .filter(o -> o.contains(o.transform.getInverseMatriz().transformPoint(point)))
 					  .findFirst()
 					  .orElse(null);
 	}

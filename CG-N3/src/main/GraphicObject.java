@@ -60,12 +60,12 @@ public class GraphicObject implements Drawable {
 		if (isInvalidValidVertexPoint(index) || point == null) {
 			return;
 		}
-		vertices.set(index, new Vertex(point));
+		vertices.set(index, new Vertex(point, transform));
 		adjustBBox();
 	}
 
 	public void createVertexAt(final Point4D point) {
-		vertices.add(new Vertex(point));
+		vertices.add(new Vertex(point, transform));
 		adjustBBox();
 	}
 
@@ -138,7 +138,27 @@ public class GraphicObject implements Drawable {
 	public void translate(int x, int y) {
 		Transform translateTransform = new Transform();
 		translateTransform.translate(x, y, 0);
-		transform = transform.transformMatrix(translateTransform);
+		transform = translateTransform.transformMatrix(transform);
+		bbox.setTransform(transform);
+	}
+	
+	public void rotateZ(double radians) {
+		Point4D middlePoint = bbox.getMiddlePoint();
+		middlePoint = middlePoint.getInvertedPoint();
+		
+		Transform translateTransform = new Transform();
+		translateTransform.translate(middlePoint.getX(), middlePoint.getY(), middlePoint.getZ());
+		transform = translateTransform.transformMatrix(transform);
+		
+		Transform rotateTransform = new Transform();
+		rotateTransform.rotateZ(radians);
+		transform = rotateTransform.transformMatrix(transform);
+		
+		middlePoint = middlePoint.getInvertedPoint();
+		
+		Transform translateInvertedTransform = new Transform();
+		translateInvertedTransform.translate(middlePoint.getX(), middlePoint.getY(), middlePoint.getZ());
+		transform = translateInvertedTransform.transformMatrix(transform);
 		bbox.setTransform(transform);
 	}
 

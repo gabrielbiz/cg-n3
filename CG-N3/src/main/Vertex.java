@@ -10,13 +10,13 @@ public class Vertex {
 	private final Point4D point;
 	private final BBox bbox;
 
-	public Vertex(Point4D point) {
+	public Vertex(Point4D point, Transform transform) {
 		this.point = point;
 		int minX = point.getX() - VERTEX_BBOX_SIZE;
 		int minY = point.getY() - VERTEX_BBOX_SIZE;
 		int maxX = point.getX() + VERTEX_BBOX_SIZE;
 		int maxY = point.getY() + VERTEX_BBOX_SIZE;
-		this.bbox = new BBox(minX, minY, maxX, maxY, VERTEX_BBOX_COLOR);
+		this.bbox = new BBox(minX, minY, maxX, maxY, VERTEX_BBOX_COLOR, transform);
 	}
 
 	public Point4D getPoint() {

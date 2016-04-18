@@ -25,13 +25,19 @@ public class BBox implements Drawable {
 		this.transform = transform;
 	}
 
-	public BBox(int minX, int minY, int maxX, int maxY, float[] color) {
-		this(minX, minY, maxX, maxY);
+	public BBox(int minX, int minY, int maxX, int maxY, float[] color, Transform transform) {
+		this(minX, minY, maxX, maxY, transform);
 		this.color[0] = color[0];
 		this.color[1] = color[1];
 		this.color[2] = color[2];
 	}
+	
+	
 
+	public BBox(int minX, int minY, int maxX, int maxY, Transform trasnform) {
+		this(minX, minY, 0, maxX, maxY, 0, trasnform);
+	}
+	
 	public BBox(int minX, int minY, int maxX, int maxY) {
 		this(minX, minY, 0, maxX, maxY, 0, null);
 	}
@@ -77,5 +83,9 @@ public class BBox implements Drawable {
 	public String toString() {
 		return String.format("BBox minX: %s, maxX: %s, minY: %s, maxY: %s, minZ: %s, maxZ %s", minX, maxX, minY, maxY,
 				minZ, maxZ);
+	}
+
+	public Point4D getMiddlePoint() {
+		return new Point4D(((maxX - minX) / 2) + minX, ((maxY - minY) / 2) + minY);
 	}
 }

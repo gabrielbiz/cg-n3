@@ -92,6 +92,15 @@ public class Transform {
 	    matriz[5] =  Math.cos(radians);
 	}
 
+	public Transform getInverseMatriz() {
+		Transform result = new Transform();
+		result.setData(matriz);
+		result.matriz[12] *= -1;
+	    result.matriz[13] *= -1;
+	    result.matriz[14] *= -1;
+		return result;
+	}
+	
 	public Point4D transformPoint(Point4D point) {
 		Point4D pointResult = new Point4D(
 				(int) (matriz[0]*point.getX()  + matriz[4]*point.getY() + matriz[8]*point.getZ()  + matriz[12]*point.getW()),
@@ -107,7 +116,7 @@ public class Transform {
         result.matriz[i] =
               matriz[i%4]    *t.matriz[i/4*4]  +matriz[(i%4)+4] *t.matriz[i/4*4+1]
             + matriz[(i%4)+8]*t.matriz[i/4*4+2]+matriz[(i%4)+12]*t.matriz[i/4*4+3];
-		return result;
+	    return result;
 	}
 	
 	public double getElement(int index) {

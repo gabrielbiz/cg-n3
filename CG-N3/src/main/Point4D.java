@@ -47,4 +47,8 @@ public class Point4D {
 	public Point4D clone() {
 		return new Point4D(x, y);
 	}
+
+	public Point4D getInvertedPoint() {
+		return new Point4D(x * -1, y * -1);
+	}
 }
