@@ -140,26 +140,58 @@ public class GraphicObject implements Drawable {
 		translateTransform.translate(x, y, 0);
 		transform = translateTransform.transformMatrix(transform);
 		bbox.setTransform(transform);
+		vertices.stream()
+				.forEach(vertex -> vertex.bbox().setTransform(transform));
 	}
 	
 	public void rotateZ(double radians) {
+		Transform tmpTransform = new Transform();
 		Point4D middlePoint = bbox.getMiddlePoint();
 		middlePoint = middlePoint.getInvertedPoint();
 		
 		Transform translateTransform = new Transform();
 		translateTransform.translate(middlePoint.getX(), middlePoint.getY(), middlePoint.getZ());
-		transform = translateTransform.transformMatrix(transform);
+		tmpTransform = translateTransform.transformMatrix(tmpTransform);
 		
 		Transform rotateTransform = new Transform();
 		rotateTransform.rotateZ(radians);
-		transform = rotateTransform.transformMatrix(transform);
+		tmpTransform = rotateTransform.transformMatrix(tmpTransform);
 		
 		middlePoint = middlePoint.getInvertedPoint();
 		
 		Transform translateInvertedTransform = new Transform();
 		translateInvertedTransform.translate(middlePoint.getX(), middlePoint.getY(), middlePoint.getZ());
-		transform = translateInvertedTransform.transformMatrix(transform);
+		tmpTransform = translateInvertedTransform.transformMatrix(tmpTransform);
+		
+		transform = transform.transformMatrix(tmpTransform);
 		bbox.setTransform(transform);
+		vertices.stream()
+				.forEach(vertex -> vertex.bbox().setTransform(transform));
+	}
+
+	public void scaleXY(double scale) {
+		Transform tmpTransform = new Transform();
+		Point4D middlePoint = bbox.getMiddlePoint();
+		middlePoint = middlePoint.getInvertedPoint();
+		
+		Transform translateTransform = new Transform();
+		translateTransform.translate(middlePoint.getX(), middlePoint.getY(), middlePoint.getZ());
+		tmpTransform = translateTransform.transformMatrix(tmpTransform);
+		
+		Transform scaleTransform = new Transform();
+		scaleTransform.scale(scale, scale, 1.0);
+		tmpTransform = scaleTransform.transformMatrix(tmpTransform);
+		
+		middlePoint = middlePoint.getInvertedPoint();
+		
+		Transform translateInvertedTransform = new Transform();
+		translateInvertedTransform.translate(middlePoint.getX(), middlePoint.getY(), middlePoint.getZ());
+		tmpTransform = translateInvertedTransform.transformMatrix(tmpTransform);
+		
+		transform = transform.transformMatrix(tmpTransform);
+		bbox.setTransform(transform);
+		vertices.stream()
+				.forEach(vertex -> vertex.bbox().setTransform(transform));
 	}
 
 	private void adjustBBox() {

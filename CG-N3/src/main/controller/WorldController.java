@@ -19,6 +19,9 @@ import main.view.Render;
 public class WorldController implements KeyListener, MouseListener, MouseMotionListener {
 
 	private static final int TRANSLATE = 20;
+	private static final double SCALE_UP = 2;
+	private static final double SCALE_DOWN = 0.5;
+	private static final double ROTATE = 5;
 	private final World world;
 	private final Render render;
 
@@ -241,11 +244,19 @@ public class WorldController implements KeyListener, MouseListener, MouseMotionL
 					break;
 					
 				case KeyEvent.VK_F1:
-					currentObject.rotateZ(Math.toRadians(5));
+					currentObject.rotateZ(Math.toRadians(ROTATE));
 					break;
 					
 				case KeyEvent.VK_F2:
-					currentObject.rotateZ(Math.toRadians(-5));
+					currentObject.rotateZ(Math.toRadians(-ROTATE));
+					break;
+					
+				case KeyEvent.VK_F3:
+					currentObject.scaleXY(SCALE_UP);
+					break;
+					
+				case KeyEvent.VK_F4:
+					currentObject.scaleXY(SCALE_DOWN);
 					break;
 			}
 		}
