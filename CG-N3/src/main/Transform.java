@@ -98,9 +98,6 @@ public class Transform {
 		result.matriz[12] *= -1;
 	    result.matriz[13] *= -1;
 	    result.matriz[14] *= -1;
-	    result.matriz[0] = 1/matriz[0];
-	    result.matriz[5] = 1/matriz[5];
-	    result.matriz[10] = 1/matriz[10];
 		return result;
 	}
 	
