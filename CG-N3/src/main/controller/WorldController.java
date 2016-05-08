@@ -76,18 +76,33 @@ public class WorldController implements KeyListener, MouseListener, MouseMotionL
 		Point4D transformedPos = null;
 
 		GraphicObject currentObject = world.getCurrentObject();
-		if (currentObject != null) {
+		boolean hasCurrentObject = currentObject != null;
+		if (hasCurrentObject) {
 			transformedPos = currentObject.transform.getInverseMatriz().transformPoint(currentPos);
 		}
 
-		if (currentVertexIndex != -1) {
+		// Adiciona um poligono filho ao objeto selecionado
+		if (hasCurrentObject && e.isShiftDown()) {
+			clearEdition();
+			GraphicObject child = new GraphicObject();
+			child.createVertexAt(currentPos.clone());
+			currentObject.addGraphicObject(child);
+			world.setCurrentObject(child);
+			return;
+		}
+
+		if (currentVertexIndex != -1)
+
+		{
 			currentObject.updateVertexPointAt(currentVertexIndex, transformedPos);
 			clearEdition();
 			render();
 			return;
 		}
 
-		if (world.hasCurrentObject()) {
+		if (world.hasCurrentObject())
+
+		{
 			currentVertexIndex = currentObject.getVertexIndexAtPos(transformedPos);
 			if (currentVertexIndex != -1) {
 				initialVertexPos = currentObject.getVertex(currentVertexIndex).getPoint();
@@ -96,16 +111,11 @@ public class WorldController implements KeyListener, MouseListener, MouseMotionL
 			}
 		}
 
-		GraphicObject object = world.findObjectAt(currentPos);
-
-		if (object != null) {
-			world.setCurrentObject(object);
-		} else {
-			world.removeCurrentObject();
-		}
-
 		if (isCtrlDown) {
-			if (object == null) {
+			GraphicObject object = null;
+			if (world.hasCurrentObject()) {
+
+			} else if ((object = world.findObjectAt(currentPos)) == null) {
 				object = new GraphicObject();
 				object.createVertexAt(currentPos.clone());
 				world.add(object);
@@ -113,8 +123,17 @@ public class WorldController implements KeyListener, MouseListener, MouseMotionL
 			}
 			object.createVertexAt(currentPos);
 			currentVertexIndex = object.getLastVertexIndex();
+		} else {
+			GraphicObject object = world.findObjectAt(currentPos);
+			if (object != null) {
+				world.setCurrentObject(object);
+			} else {
+				world.removeCurrentObject();
+			}
 		}
+
 		render();
+
 	}
 
 	private void clearEdition() {
@@ -210,54 +229,54 @@ public class WorldController implements KeyListener, MouseListener, MouseMotionL
 			final GraphicObject currentObject = world.getCurrentObject();
 
 			switch (keyCode) {
-				/* Adicionar novo vértice */
-				case KeyEvent.VK_CONTROL:
-					/*
-					 * Duplica o último ponto do objeto atual, esse ponto é vai ser
-					 * o ponto do mouse.
-					 */
-					final Point4D mousePoint = currentObject.getLastVertex().getPoint().clone();
-					currentObject.createVertexAt(mousePoint);
-					currentVertexIndex = currentObject.getLastVertexIndex();
-					break;
-	
-				/* Excluir objeto */
-				case KeyEvent.VK_R:
-					world.remove(currentObject);
-					world.removeCurrentObject();
-					break;
-				
-				case KeyEvent.VK_UP:
-					currentObject.translate(0, TRANSLATE);
-					break;
-					
-				case KeyEvent.VK_DOWN:
-					currentObject.translate(0, -TRANSLATE);
-					break;
-					
-				case KeyEvent.VK_LEFT:
-					currentObject.translate(-TRANSLATE, 0);
-					break;
-					
-				case KeyEvent.VK_RIGHT:
-					currentObject.translate(TRANSLATE, 0);
-					break;
-					
-				case KeyEvent.VK_F1:
-					currentObject.rotateZ(Math.toRadians(ROTATE));
-					break;
-					
-				case KeyEvent.VK_F2:
-					currentObject.rotateZ(Math.toRadians(-ROTATE));
-					break;
-					
-				case KeyEvent.VK_F3:
-					currentObject.scaleXY(SCALE_UP);
-					break;
-					
-				case KeyEvent.VK_F4:
-					currentObject.scaleXY(SCALE_DOWN);
-					break;
+			/* Adicionar novo vértice */
+			case KeyEvent.VK_CONTROL:
+				/*
+				 * Duplica o último ponto do objeto atual, esse ponto é vai ser
+				 * o ponto do mouse.
+				 */
+				final Point4D mousePoint = currentObject.getLastVertex().getPoint().clone();
+				currentObject.createVertexAt(mousePoint);
+				currentVertexIndex = currentObject.getLastVertexIndex();
+				break;
+
+			/* Excluir objeto */
+			case KeyEvent.VK_R:
+				world.remove(currentObject);
+				world.removeCurrentObject();
+				break;
+
+			case KeyEvent.VK_UP:
+				currentObject.translate(0, TRANSLATE);
+				break;
+
+			case KeyEvent.VK_DOWN:
+				currentObject.translate(0, -TRANSLATE);
+				break;
+
+			case KeyEvent.VK_LEFT:
+				currentObject.translate(-TRANSLATE, 0);
+				break;
+
+			case KeyEvent.VK_RIGHT:
+				currentObject.translate(TRANSLATE, 0);
+				break;
+
+			case KeyEvent.VK_F1:
+				currentObject.rotateZ(Math.toRadians(ROTATE));
+				break;
+
+			case KeyEvent.VK_F2:
+				currentObject.rotateZ(Math.toRadians(-ROTATE));
+				break;
+
+			case KeyEvent.VK_F3:
+				currentObject.scaleXY(SCALE_UP);
+				break;
+
+			case KeyEvent.VK_F4:
+				currentObject.scaleXY(SCALE_DOWN);
+				break;
 			}
 		}
 	}

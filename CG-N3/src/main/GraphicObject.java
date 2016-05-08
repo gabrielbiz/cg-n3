@@ -9,9 +9,9 @@ public class GraphicObject implements Drawable {
 
 	private final LinkedList<Vertex> vertices = new LinkedList<>();
 	private final float[] color = { 0f, 0f, 0f };
+	private final List<GraphicObject> objects = new LinkedList<>();
 	private int primitive = GL.GL_LINE_STRIP;
 	public Transform transform = new Transform();
-	public List<GraphicObject> objects;
 	private BBox bbox;
 
 	public void setColor(final float[] color) {
@@ -30,6 +30,14 @@ public class GraphicObject implements Drawable {
 
 	public void incBlue() {
 		incColorAt(2);
+	}
+
+	public void addGraphicObject(final GraphicObject object) {
+		objects.add(object);
+	}
+
+	public List<GraphicObject> getGrapicObjects() {
+		return objects;
 	}
 
 	/**
@@ -80,18 +88,20 @@ public class GraphicObject implements Drawable {
 	@Override
 	public void draw(final GL gl) {
 		gl.glPushMatrix();
-		
+
 		gl.glMultMatrixd(transform.getDate(), 0);
 		gl.glLineWidth(3f);
 		gl.glPointSize(3f);
-		
+
 		gl.glBegin(primitive);
 		for (Vertex vertex : vertices) {
 			gl.glColor3f(color[0], color[1], color[2]);
 			gl.glVertex2d(vertex.getX(), vertex.getY());
 		}
 		gl.glEnd();
-		
+
+		objects.forEach(o -> o.draw(gl));
+
 		gl.glPopMatrix();
 	}
 
@@ -134,64 +144,61 @@ public class GraphicObject implements Drawable {
 	public Vertex getLastVertex() {
 		return vertices.isEmpty() ? null : vertices.getLast();
 	}
-	
+
 	public void translate(int x, int y) {
 		Transform translateTransform = new Transform();
 		translateTransform.translate(x, y, 0);
 		transform = translateTransform.transformMatrix(transform);
 		bbox.setTransform(transform);
-		vertices.stream()
-				.forEach(vertex -> vertex.bbox().setTransform(transform));
+		vertices.stream().forEach(vertex -> vertex.bbox().setTransform(transform));
 	}
-	
+
 	public void rotateZ(double radians) {
 		Transform tmpTransform = new Transform();
 		Point4D middlePoint = bbox.getMiddlePoint();
 		middlePoint = middlePoint.getInvertedPoint();
-		
+
 		Transform translateTransform = new Transform();
 		translateTransform.translate(middlePoint.getX(), middlePoint.getY(), middlePoint.getZ());
 		tmpTransform = translateTransform.transformMatrix(tmpTransform);
-		
+
 		Transform rotateTransform = new Transform();
 		rotateTransform.rotateZ(radians);
 		tmpTransform = rotateTransform.transformMatrix(tmpTransform);
-		
+
 		middlePoint = middlePoint.getInvertedPoint();
-		
+
 		Transform translateInvertedTransform = new Transform();
 		translateInvertedTransform.translate(middlePoint.getX(), middlePoint.getY(), middlePoint.getZ());
 		tmpTransform = translateInvertedTransform.transformMatrix(tmpTransform);
-		
+
 		transform = transform.transformMatrix(tmpTransform);
 		bbox.setTransform(transform);
-		vertices.stream()
-				.forEach(vertex -> vertex.bbox().setTransform(transform));
+		vertices.stream().forEach(vertex -> vertex.bbox().setTransform(transform));
 	}
 
 	public void scaleXY(double scale) {
 		Transform tmpTransform = new Transform();
 		Point4D middlePoint = bbox.getMiddlePoint();
 		middlePoint = middlePoint.getInvertedPoint();
-		
+
 		Transform translateTransform = new Transform();
 		translateTransform.translate(middlePoint.getX(), middlePoint.getY(), middlePoint.getZ());
 		tmpTransform = translateTransform.transformMatrix(tmpTransform);
-		
+
 		Transform scaleTransform = new Transform();
 		scaleTransform.scale(scale, scale, 1.0);
 		tmpTransform = scaleTransform.transformMatrix(tmpTransform);
-		
+
 		middlePoint = middlePoint.getInvertedPoint();
-		
+
 		Transform translateInvertedTransform = new Transform();
 		translateInvertedTransform.translate(middlePoint.getX(), middlePoint.getY(), middlePoint.getZ());
 		tmpTransform = translateInvertedTransform.transformMatrix(tmpTransform);
-		
+
 		transform = transform.transformMatrix(tmpTransform);
 		bbox.setTransform(transform);
-		vertices.stream()
-				.forEach(vertex -> vertex.bbox().setTransform(transform));
+		vertices.stream().forEach(vertex -> vertex.bbox().setTransform(transform));
 	}
 
 	private void adjustBBox() {

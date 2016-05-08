@@ -15,10 +15,8 @@ public class World implements Drawable {
 	private GraphicObject currentObject;
 
 	public GraphicObject findObjectAt(final Point4D point) {
-		return objects.stream()
-					  .filter(o -> o.contains(o.transform.getInverseMatriz().transformPoint(point)))
-					  .findFirst()
-					  .orElse(null);
+		return objects.stream().filter(o -> o.contains(o.transform.getInverseMatriz().transformPoint(point)))
+				.findFirst().orElse(null);
 	}
 
 	/**
@@ -75,11 +73,12 @@ public class World implements Drawable {
 	public void add(GraphicObject graphicObject) {
 		objects.add(graphicObject);
 	}
-	
+
 	/**
 	 * Remove um objeto gráfico do mundo.
 	 * 
-	 * @param graphicObject objeto a ser removido.
+	 * @param graphicObject
+	 *            objeto a ser removido.
 	 */
 	public void remove(GraphicObject graphicObject) {
 		objects.remove(graphicObject);
