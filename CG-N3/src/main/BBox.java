@@ -4,7 +4,7 @@ import javax.media.opengl.GL;
 
 import main.opengl.utils.ColorUtils;
 
-public class BBox implements Drawable {
+public class BBox implements Drawable, Comparable<BBox> {
 
 	private final int minX;
 	private final int minY;
@@ -31,13 +31,11 @@ public class BBox implements Drawable {
 		this.color[1] = color[1];
 		this.color[2] = color[2];
 	}
-	
-	
 
 	public BBox(int minX, int minY, int maxX, int maxY, Transform trasnform) {
 		this(minX, minY, 0, maxX, maxY, 0, trasnform);
 	}
-	
+
 	public BBox(int minX, int minY, int maxX, int maxY) {
 		this(minX, minY, 0, maxX, maxY, 0, null);
 	}
@@ -45,11 +43,11 @@ public class BBox implements Drawable {
 	@Override
 	public void draw(final GL gl) {
 		gl.glPushMatrix();
-		
+
 		if (transform != null) {
 			gl.glMultMatrixd(transform.getDate(), 0);
 		}
-		
+
 		gl.glLineWidth(2f);
 		gl.glPointSize(2f);
 		gl.glColor3f(color[0], color[1], color[2]);
@@ -59,7 +57,7 @@ public class BBox implements Drawable {
 		gl.glVertex2d(maxX, minY);
 		gl.glVertex2d(minX, minY);
 		gl.glEnd();
-		
+
 		gl.glPopMatrix();
 	}
 
@@ -74,7 +72,7 @@ public class BBox implements Drawable {
 		}
 		return true;
 	}
-	
+
 	public void setTransform(Transform transform) {
 		this.transform = transform;
 	}
@@ -87,5 +85,37 @@ public class BBox implements Drawable {
 
 	public Point4D getMiddlePoint() {
 		return new Point4D(((maxX - minX) / 2) + minX, ((maxY - minY) / 2) + minY);
+	}
+
+	@Override
+	public int compareTo(BBox o) {
+		int smallerCount = 0;
+		int biggerCount = 0;
+		if (Math.abs(minX) < Math.abs(o.minX)) {
+			smallerCount++;
+		} else if (Math.abs(minX) > Math.abs(o.minX)) {
+			biggerCount++;
+		}
+		if (Math.abs(minY) < Math.abs(o.minY)) {
+			smallerCount++;
+		} else if (Math.abs(minY) > Math.abs(o.minY)) {
+			biggerCount++;
+		}
+		if (Math.abs(maxX) < Math.abs(o.maxX)) {
+			smallerCount++;
+		} else if (Math.abs(maxX) > Math.abs(o.maxX)) {
+			biggerCount++;
+		}
+		if (Math.abs(maxX) < Math.abs(o.maxX)) {
+			smallerCount++;
+		} else if (Math.abs(maxX) > Math.abs(o.maxX)) {
+			biggerCount++;
+		}
+		if (smallerCount < biggerCount) {
+			return 1;
+		} else if (smallerCount > biggerCount) {
+			return -1;
+		}
+		return 0;
 	}
 }

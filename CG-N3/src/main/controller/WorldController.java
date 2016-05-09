@@ -72,9 +72,11 @@ public class WorldController implements KeyListener, MouseListener, MouseMotionL
 
 	@Override
 	public void mouseClicked(MouseEvent e) {
+		Rectangle bounds = MainWindow.canvas.getBounds();
+		double dX = bounds.getWidth() - e.getX();
 		final Point4D currentPos = worldPoint(e);
-		Point4D transformedPos = null;
 
+		Point4D transformedPos = null;
 		GraphicObject currentObject = world.getCurrentObject();
 		boolean hasCurrentObject = currentObject != null;
 		if (hasCurrentObject) {
@@ -111,11 +113,12 @@ public class WorldController implements KeyListener, MouseListener, MouseMotionL
 			}
 		}
 
+		Point4D fin = framePosToWorldPos((int) (e.getX() + dX), e.getY());
 		if (isCtrlDown) {
 			GraphicObject object = null;
 			if (world.hasCurrentObject()) {
 
-			} else if ((object = world.findObjectAt(currentPos)) == null) {
+			} else if ((object = world.findObjectAt(currentPos, fin)) == null) {
 				object = new GraphicObject();
 				object.createVertexAt(currentPos.clone());
 				world.add(object);
@@ -124,7 +127,7 @@ public class WorldController implements KeyListener, MouseListener, MouseMotionL
 			object.createVertexAt(currentPos);
 			currentVertexIndex = object.getLastVertexIndex();
 		} else {
-			GraphicObject object = world.findObjectAt(currentPos);
+			GraphicObject object = world.findObjectAt(currentPos, fin);
 			if (object != null) {
 				world.setCurrentObject(object);
 			} else {

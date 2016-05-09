@@ -32,6 +32,10 @@ public class GraphicObject implements Drawable {
 		incColorAt(2);
 	}
 
+	public LinkedList<Vertex> getVertices() {
+		return vertices;
+	}
+
 	public void addGraphicObject(final GraphicObject object) {
 		objects.add(object);
 	}
@@ -53,6 +57,7 @@ public class GraphicObject implements Drawable {
 	}
 
 	public BBox getBBox() {
+		adjustBBox();
 		return bbox;
 	}
 

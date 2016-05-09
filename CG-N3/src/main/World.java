@@ -1,7 +1,11 @@
 package main;
 
+import java.awt.geom.Line2D;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import javax.media.opengl.GL;
 
@@ -17,6 +21,58 @@ public class World implements Drawable {
 	public GraphicObject findObjectAt(final Point4D point) {
 		return objects.stream().filter(o -> o.contains(o.transform.getInverseMatriz().transformPoint(point)))
 				.findFirst().orElse(null);
+	}
+
+	public <Any> List<Any> getRecursive(Any node, Function<Any, List<Any>> get) {
+		List<Any> all = new ArrayList<>();
+		all.add(node);
+		List<Any> children = get.apply(node);
+		if (!children.isEmpty()) {
+			for (Any c : children) {
+				all.addAll(getRecursive(c, get));
+			}
+		}
+		return all;
+	}
+
+	public GraphicObject findObjectAt(final Point4D point, final Point4D endPoint) {
+
+		List<GraphicObject> all = new ArrayList<>();
+
+		for (GraphicObject graphicObject : objects) {
+			all.addAll(getRecursive(graphicObject, GraphicObject::getGrapicObjects));
+		}
+
+		all = all.stream().filter(o -> o.contains(o.transform.getInverseMatriz().transformPoint(point)))
+				.collect(Collectors.toList());
+
+		List<GraphicObject> inside = new ArrayList<>();
+		for (GraphicObject go : all) {
+			int intersects = 0;
+			LinkedList<Vertex> vertices = go.getVertices();
+			final int size = vertices.size();
+			for (int i = 0; i < size; i++) {
+				int endIndex = i < size - 1 ? i + 1 : 0;
+				if (Line2D.linesIntersect(point.getX(), point.getY(), endPoint.getX(), endPoint.getY(),
+						vertices.get(i).getX(), vertices.get(i).getY(), vertices.get(endIndex).getX(),
+						vertices.get(endIndex).getY())) {
+					intersects++;
+				}
+			}
+			if (intersects % 2 != 0) {
+				inside.add(go);
+			}
+		}
+		if (inside.isEmpty()) {
+			return null;
+		}
+		GraphicObject smaller = inside.get(0);
+		for (GraphicObject go : inside) {
+			if (go.getBBox().compareTo(smaller.getBBox()) < 0) {
+				smaller = go;
+			}
+		}
+		return smaller;
 	}
 
 	/**
