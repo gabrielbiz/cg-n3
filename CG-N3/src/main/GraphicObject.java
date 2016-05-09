@@ -122,7 +122,32 @@ public class GraphicObject implements Drawable {
 		if (bbox == null) {
 			return false;
 		}
-		return bbox.contains(point);
+		if (!bbox.contains(point)) {
+			return false;
+		}
+		
+		int intersects = 0;
+		final int size = vertices.size();
+		for (int i = 0; i < size; i++) {
+			int endIndex = i < size - 1 ? i + 1 : 0;
+			Vertex initialVertex = vertices.get(i);
+			Vertex endVertex = vertices.get(endIndex);
+			if (intersectsYLeft(point, initialVertex.getPoint(), endVertex.getPoint())) {
+				intersects++;
+			}
+		}
+		return (intersects % 2 != 0);
+	}
+	
+	private boolean intersectsYLeft(Point4D pointToCheck, Point4D p1, Point4D p2) {
+		double t = (double)(p1.getY() - pointToCheck.getY()) / (double)(p2.getY() - p1.getY());
+		t *= -1;
+		double expectedXPos = getXCalculed(t, p1.getX(), p2.getX());
+		return t >= 0 && t <= 1 && expectedXPos >= pointToCheck.getX();
+	}
+	
+	private double getXCalculed(double t, int x1, int x2) {
+		return x1 + ((x2 - x1) * t);
 	}
 
 	public Vertex getVertex(final int index) {

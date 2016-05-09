@@ -1,6 +1,5 @@
 package main;
 
-import java.awt.geom.Line2D;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -43,36 +42,20 @@ public class World implements Drawable {
 			all.addAll(getRecursive(graphicObject, GraphicObject::getGrapicObjects));
 		}
 
-		all = all.stream().filter(o -> o.contains(o.transform.getInverseMatriz().transformPoint(point)))
+		all = all.stream()
+				.filter(o -> o.contains(point))
 				.collect(Collectors.toList());
 
-		List<GraphicObject> inside = new ArrayList<>();
-		for (GraphicObject go : all) {
-			int intersects = 0;
-			LinkedList<Vertex> vertices = go.getVertices();
-			final int size = vertices.size();
-			for (int i = 0; i < size; i++) {
-				int endIndex = i < size - 1 ? i + 1 : 0;
-				if (Line2D.linesIntersect(point.getX(), point.getY(), endPoint.getX(), endPoint.getY(),
-						vertices.get(i).getX(), vertices.get(i).getY(), vertices.get(endIndex).getX(),
-						vertices.get(endIndex).getY())) {
-					intersects++;
+		if (all.size() > 0) {
+			GraphicObject smaller = all.get(0);
+			for (GraphicObject go : all) {
+				if (go.getBBox().compareTo(smaller.getBBox()) < 0) {
+					smaller = go;
 				}
 			}
-			if (intersects % 2 != 0) {
-				inside.add(go);
-			}
+			return smaller;
 		}
-		if (inside.isEmpty()) {
-			return null;
-		}
-		GraphicObject smaller = inside.get(0);
-		for (GraphicObject go : inside) {
-			if (go.getBBox().compareTo(smaller.getBBox()) < 0) {
-				smaller = go;
-			}
-		}
-		return smaller;
+		return null;
 	}
 
 	/**
